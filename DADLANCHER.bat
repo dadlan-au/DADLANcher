@@ -4,7 +4,7 @@ color 0A
 
 
 :begin
-cd "C:\Users\usernane\Desktop\DADLAN"
+cd "C:\Users\%USERNAME%\Desktop\DADLAN"
 type ASCIILOGO.txt
 echo.
 echo Testing Wireguard Connection:
@@ -147,7 +147,7 @@ goto Menu1
 
 :op5
 echo Quake 3
-"C:\Users\username\Downloads\Games\Quake3\Quake3\quake3e-vulkan.x64.exe"
+"C:\Users\%USERNAME%\Downloads\Games\Quake3\Quake3\quake3e-vulkan.x64.exe"
 CLS
 goto Menu1
 
