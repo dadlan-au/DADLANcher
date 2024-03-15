@@ -113,7 +113,9 @@ type DADCFG.ini | find /v "WGCONFIGDIR=" > DADCFG.tmp
 copy DADCFG.tmp DADCFG.ini
 echo WGCONFIGDIR=%WGConfigdirV%>> DADCFG.ini
 
-for %%a in ("%file%") do set "WGConfignameV=%%~na"
+for %%a in ("%WGConfigdirV%") do set "WGName=%%~na"
+set WGConfignameV=%WGName%
+echo %WGName%
 
 type DADCFG.ini | find /v "WGCONFIGNAME=" > DADCFG.tmp
 copy DADCFG.tmp DADCFG.ini
@@ -319,7 +321,7 @@ if errorlevel 1 (
     echo Wireguard is not active.
 	set wgactive=0
 	pause
-	goto activate
+	goto activateold
 ) else (
     echo Wireguard is active
 	set wgactive=1
@@ -329,7 +331,10 @@ if errorlevel 1 (
 
 
 :activateold
-if %WGCONFIGNAME%=="" goto activatenew
+for /f "tokens=1,2 delims==" %%a in (DADCFG.ini) do (
+if %%a==WGCONFIGNAME set WGCONFIGNAME=%%b
+)
+if "%WGCONFIGNAME%"=="" goto activatenew
 cls
 type ASCIILOGO.txt
 echo.
@@ -362,6 +367,7 @@ echo.
 pause
 
 :activatenew
+
 echo.
 echo select a file to activate Wireguard
 echo.
@@ -380,7 +386,9 @@ type DADCFG.ini | find /v "WGCONFIGDIR=" > DADCFG.tmp
 copy DADCFG.tmp DADCFG.ini
 echo WGCONFIGDIR=%WGConfigdirV%>> DADCFG.ini
 
-for %%a in ("%file%") do set "WGConfignameV=%%~na"
+for %%a in ("%WGConfigdirV%") do set "WGName=%%~na"
+set WGConfignameV=%WGName%
+echo %WGName%
 
 type DADCFG.ini | find /v "WGCONFIGNAME=" > DADCFG.tmp
 copy DADCFG.tmp DADCFG.ini
@@ -417,7 +425,10 @@ goto WGMenu
 :op2
 ::Put in check if var is populated. If not ask to identify file then kill WG. Choice to close LANcher without killing WG?
 if %wgactive% == 0 echo Wireguard config file is not stored. Please disconnect wireguard manually.
-"C:\Program Files\WireGuard\wireguard.exe" /uninstalltunnelservice %wgname%
+for /f "tokens=1,2 delims==" %%a in (DADCFG.ini) do (
+if %%a==WGCONFIGNAME set WGCONFIGNAME=%%b
+)
+"C:\Program Files\WireGuard\wireguard.exe" /uninstalltunnelservice %WGCONFIGNAME%
 echo Wireguard has been deactivated
 pause
 CLS
@@ -504,31 +515,29 @@ echo.
 echo.
 set cncrenip=
 set cncrenname=
-if [%cncrenip%]==[] goto cncrenip
+if "%cncrenip%"=="" goto cncrenip
 goto cncrenname
 
 :cncrenip
-echo.
 set /p cncrenip=Enter the IP address of the LAN host:
 pause
 echo.
 if [%cncrenip%]==[] (
     echo No IP Entered. Please enter the IP address of the host.
-	goto cncop3
+	goto cncrenip
 	pause
 ) else (
     goto cncrenname
 	pause
 )
 :cncrenname
-echo.
 set /p cncrenname=Enter your player nickname:
 pause
 echo.
 if [%cncrenname%]==[] (
     echo No name Entered. Please enter your player nickname.
 	pause
-	goto cncop3
+	goto cncrenname
 ) else (
     goto cncrenlanjoin
 	pause
@@ -537,17 +546,21 @@ if [%cncrenname%]==[] (
 :cncrenlanjoin
 echo.
 echo -launcher ^+connect %cncrenip% ^+netplayername %cncrenname%
+echo.
 pause
 for /f "tokens=1,2 delims==" %%a in (DADCFG.ini) do (
 if %%a==CNCAPBDIR set CNCAPBDIR=%%b
 )
+echo.
 echo %CNCAPBDIR%
 pause
 if "%CNCAPBDIR%"=="" goto op5
-echo "%CNCAPBDIR%" -launcher ^+connect %cncrenip% ^+netplayername %cncrenname%
-::"C:\Program Files\W3D Hub\games\apb\release\game.exe" -launcher ^+connect %cncrenip% ^+netplayername %cncrenname%
+echo.
+echo "%CNCAPBDIR%" -launcher ^+connect %cncrenip% ^netplayername %cncrenname%
+echo.
+"%CNCAPBDIR%" -launcher ^+connect %cncrenip% ^netplayername %cncrenname%
 echo Press any key to return to the echo Command ^& Conquer Renegade: A Path Beyond menu
-
+echo.
 pause
 CLS
 goto CncRenMenu
@@ -571,11 +584,11 @@ set dialog=%dialog%('Scripting.FileSystemObject').GetStandardStream(1).WriteLine
 set dialog=%dialog%close();resizeTo(0,0);</script>"
 for /f "tokens=* delims=" %%p in ('mshta.exe %dialog%') do set "CNCAPBDIRV=%%p"
 echo selected  file is : "%CNCAPBDIRV%"
-
+echo.
 type DADCFG.ini | find /v "CNCAPBDIR=" > DADCFG.tmp
 copy DADCFG.tmp DADCFG.ini
 echo CNCAPBDIR=%CNCAPBDIRV%>> DADCFG.ini
-
+echo.
 pause
 
 echo Press any key to return to the Command ^& Conquer Renegade: A Path Beyond menu
