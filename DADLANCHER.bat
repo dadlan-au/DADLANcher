@@ -3,13 +3,27 @@ CLS
 color 0A
 
 :begin
+cd "C:\Users\%USERNAME%\Desktop\DADLAN"
+echo read all config file values
+for /f "tokens=1,2 delims==" %%a in (DADCFG.ini) do (
+if %%a==CNCAPBDIR set CNCAPBDIR=%%b
+if %%a==WGCONFIGDIR set WGCONFIGDIR=%%b
+if %%a==WGCONFIGNAME set WGCONFIGNAME=%%b
+)
+
+echo %CNCAPBDIR%
+echo %WGCONFIGDIR%
+echo %WGCONFIGNAME%
+
+Pause
+CLS
+
 set wgactive=0
 set op=
 set wgname=1
 set file=
 set cncrenip=
 set cncrenname=
-cd "C:\Users\%USERNAME%\Desktop\DADLAN"
 type ASCIILOGO.txt
 echo.
 echo Testing Wireguard Connection:
@@ -27,12 +41,16 @@ echo.
 echo Wireguard is not active. Press 1 to activate Wireguard or 2 to proceed to menu.
 set wgactive=0
 echo.
+echo %WGCONFIGDIR%
+echo %WGCONFIGNAME%
+echo.
 set /p op=Type option:
 if "%op%"=="1" goto op1
 if "%op%"=="2" goto op2
 	
 :op1
-goto WG
+if "%WGCONFIGNAME%"=="" goto WGnew
+if not "%WGCONFIGNAME%"=="" goto WGold
 
 :op2
 goto MainMenu
@@ -40,12 +58,43 @@ goto MainMenu
 :mnu
 echo.
 echo Wireguard is active. Press any key to load the menu.
-set wgactive=0
+set wgactive=1
 Pause
 goto MainMenu
 
+:WGold
+cls
+type ASCIILOGO.txt
+echo.
+echo activating Wireguard from a previously saved config file...
+"C:\Program Files\WireGuard\wireguard.exe" /installtunnelservice "%WGCONFIGDIR%"
+echo.
+echo press any key to test wireguard configuration
+echo.
+pause
 
-:WG
+CLS
+type ASCIILOGO.txt
+echo.
+echo testing wireguard connection:
+echo.
+::Add timeout here for about 5 seconds to allow Ping to work without waiting at above step.
+ping -n 1 10.0.0.102 | find "TTL=" >nul
+if errorlevel 1 (
+    echo Wireguard is not active. Try select a new file to activate Wireguard. If this fails, download a new WG config file from the discord.
+	set wgactive=0
+	pause
+	goto WGnew
+) else (
+    echo Wireguard is active
+	set wgactive=1
+	pause
+	goto MainMenu
+)
+echo.
+pause
+
+:WGnew
 echo.
 echo select a file to activate Wireguard
 echo.
@@ -57,14 +106,23 @@ echo.
 set dialog="about:<input type=file id=FILE><script>FILE.click();new ActiveXObject
 set dialog=%dialog%('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);
 set dialog=%dialog%close();resizeTo(0,0);</script>"
-for /f "tokens=* delims=" %%p in ('mshta.exe %dialog%') do set "file=%%p"
-echo selected  file is : "%file%"
-for %%a in ("%file%") do set "wgname=%%~na"
+for /f "tokens=* delims=" %%p in ('mshta.exe %dialog%') do set "WGConfigdirV=%%p"
+echo selected  file is : "%WGConfigdirV%"
+
+type DADCFG.ini | find /v "WGCONFIGDIR=" > DADCFG.tmp
+copy DADCFG.tmp DADCFG.ini
+echo WGCONFIGDIR=%WGConfigdirV%>> DADCFG.ini
+
+for %%a in ("%file%") do set "WGConfignameV=%%~na"
+
+type DADCFG.ini | find /v "WGCONFIGNAME=" > DADCFG.tmp
+copy DADCFG.tmp DADCFG.ini
+echo WGCONFIGNAME=%WGConfignameV%>> DADCFG.ini
 echo.
 pause
 
 cls
-"C:\Program Files\WireGuard\wireguard.exe" /installtunnelservice "%file%"
+"C:\Program Files\WireGuard\wireguard.exe" /installtunnelservice "%WGConfigdirV%"
 type ASCIILOGO.txt
 echo.
 echo press any key to test wireguard configuration
@@ -140,14 +198,14 @@ if errorlevel 1 (
 	Pause
 	@exit
 ) else (
-if %wgname%==1 (
+if %WGConfignameV%=="" (
 	echo Wireguard config file is not stored. Please disconnect wireguard manually.
 	Pause
 	@exit
 )
 	echo.
 	echo Exiting DadLANcher...
-	"C:\Program Files\WireGuard\wireguard.exe" /uninstalltunnelservice %wgname%
+	"C:\Program Files\WireGuard\wireguard.exe" /uninstalltunnelservice %WGConfignameV%
 	pause
 	@exit
 )
@@ -270,7 +328,40 @@ if errorlevel 1 (
 )
 
 
-:activate
+:activateold
+if %WGCONFIGNAME%=="" goto activatenew
+cls
+type ASCIILOGO.txt
+echo.
+echo activating Wireguard from a previously saved config file...
+"C:\Program Files\WireGuard\wireguard.exe" /installtunnelservice "%WGCONFIGDIR%"
+echo.
+echo press any key to test wireguard configuration
+echo.
+pause
+
+CLS
+type ASCIILOGO.txt
+echo.
+echo testing wireguard connection:
+echo.
+::Add timeout here for about 5 seconds to allow Ping to work without waiting at above step.
+ping -n 1 10.0.0.102 | find "TTL=" >nul
+if errorlevel 1 (
+    echo Wireguard is not active. Try select a new file to activate Wireguard. If this fails, download a new WG config file from the discord.
+	set wgactive=0
+	pause
+	goto activatenew
+) else (
+    echo Wireguard is active
+	set wgactive=1
+	pause
+	goto WGMenu
+)
+echo.
+pause
+
+:activatenew
 echo.
 echo select a file to activate Wireguard
 echo.
@@ -282,14 +373,23 @@ echo.
 set dialog="about:<input type=file id=FILE><script>FILE.click();new ActiveXObject
 set dialog=%dialog%('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);
 set dialog=%dialog%close();resizeTo(0,0);</script>"
-for /f "tokens=* delims=" %%p in ('mshta.exe %dialog%') do set "file=%%p"
-echo selected  file is : "%file%"
-for %%a in ("%file%") do set "wgname=%%~na"
+for /f "tokens=* delims=" %%p in ('mshta.exe %dialog%') do set "WGConfigdirV=%%p"
+echo selected  file is : "%WGConfigdirV%"
+
+type DADCFG.ini | find /v "WGCONFIGDIR=" > DADCFG.tmp
+copy DADCFG.tmp DADCFG.ini
+echo WGCONFIGDIR=%WGConfigdirV%>> DADCFG.ini
+
+for %%a in ("%file%") do set "WGConfignameV=%%~na"
+
+type DADCFG.ini | find /v "WGCONFIGNAME=" > DADCFG.tmp
+copy DADCFG.tmp DADCFG.ini
+echo WGCONFIGNAME=%WGConfignameV%>> DADCFG.ini
 echo.
 pause
 
 cls
-"C:\Program Files\WireGuard\wireguard.exe" /installtunnelservice "%file%"
+"C:\Program Files\WireGuard\wireguard.exe" /installtunnelservice "%WGConfigdirV%"
 type ASCIILOGO.txt
 echo.
 echo press any key to test wireguard configuration
@@ -301,6 +401,7 @@ type ASCIILOGO.txt
 echo.
 echo testing wireguard connection:
 echo.
+::Add timeout here for about 5 seconds to allow Ping to work without waiting at above step.
 ping -n 1 10.0.0.102 | find "TTL=" >nul
 if errorlevel 1 (
     echo Wireguard is not active. Try re-launch as admin OR get a new WG config file from the helpdesk in Discord.
@@ -355,7 +456,7 @@ ECHO 1.Launch game with no parameters
 ECHO 2.Host LAN game
 ECHO 3.Join LAN game
 ECHO 4.Join Internet game
-ECHO 5.Games Settings
+ECHO 5.Game DIR Selector
 ECHO 6.Game Menu
 ECHO 7.Main Menu
 
@@ -425,8 +526,9 @@ set /p cncrenname=Enter your player nickname:
 pause
 echo.
 if [%cncrenname%]==[] (
-    echo No IP Entered. Please enter the IP address of the host.
+    echo No name Entered. Please enter your player nickname.
 	pause
+	goto cncop3
 ) else (
     goto cncrenlanjoin
 	pause
@@ -435,6 +537,14 @@ if [%cncrenname%]==[] (
 :cncrenlanjoin
 echo.
 echo -launcher ^+connect %cncrenip% ^+netplayername %cncrenname%
+pause
+for /f "tokens=1,2 delims==" %%a in (DADCFG.ini) do (
+if %%a==CNCAPBDIR set CNCAPBDIR=%%b
+)
+echo %CNCAPBDIR%
+pause
+if "%CNCAPBDIR%"=="" goto op5
+echo "%CNCAPBDIR%" -launcher ^+connect %cncrenip% ^+netplayername %cncrenname%
 ::"C:\Program Files\W3D Hub\games\apb\release\game.exe" -launcher ^+connect %cncrenip% ^+netplayername %cncrenname%
 echo Press any key to return to the echo Command ^& Conquer Renegade: A Path Beyond menu
 
@@ -453,10 +563,21 @@ CLS
 goto CncRenMenu
 
 :op5
-echo Command ^& Conquer Renegade: A Path Beyond Settings
-pause
+cls
+type ASCIILOGO.txt
 echo.
-::"C:\Program Files\W3D Hub\games\apb\release\game.exe"
+set dialog="about:<input type=file id=FILE><script>FILE.click();new ActiveXObject
+set dialog=%dialog%('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);
+set dialog=%dialog%close();resizeTo(0,0);</script>"
+for /f "tokens=* delims=" %%p in ('mshta.exe %dialog%') do set "CNCAPBDIRV=%%p"
+echo selected  file is : "%CNCAPBDIRV%"
+
+type DADCFG.ini | find /v "CNCAPBDIR=" > DADCFG.tmp
+copy DADCFG.tmp DADCFG.ini
+echo CNCAPBDIR=%CNCAPBDIRV%>> DADCFG.ini
+
+pause
+
 echo Press any key to return to the Command ^& Conquer Renegade: A Path Beyond menu
 pause
 CLS
