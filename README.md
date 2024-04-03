@@ -1,23 +1,11 @@
-# DADLANcher
+# 🖥️DADLANcher
+## 🚨 THIS IS VERY MUCH A WORK IN PROGRESS 🚨
 
-## Setup 🔧
-- Download the `dadlancher.bat`, `DADLAN-LOGO.ico` and `Asciilogo.txt` file and put in a folder.
-- Modify line 7 to reflect the location of the `Asciilogo.txt` dir
-- Modify line 150 for the Quake3 install dir
-- Run `dadlancher.bat`
+## 🗒️Info
+A PowerShell based alternative to the original batch LANcher.
 
-### Reccomended display settings 🖥️
-#### Create a shortcut and set the following parameters:
-Shortcut Icon: use `DADLAN-LOGO.ico`
-Font Size: 16
-Font: Courier New
-Bold Fonts: Ticked
+The driver behind this is to improve functionality and allow more modular configuration and compatibility.
+Each game has its own `GameName.ps1` script so this can be scaled if new games are required.
 
-Layout:
-Screen Buffer:
-Width: 92
-Height: 70
-
-Window Size:
-Width: 92
-Height: 70
+## 🔧 Setup & Usage
+- Run `InitialLaunch.ps1`
