@@ -1,5 +1,5 @@
 # This script serves as the initial launch script for DadLANcher
-$Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size(110, 35)
+$Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size(111, 36)
 # Load ASCII logo
 $asciilogo = Get-Content -Path "..\ASCIILOGO.txt"
 # Set window size
@@ -18,11 +18,11 @@ $asciilogo = Get-Content -Path "..\ASCIILOGO.txt"
 # Display welcome message and menu options
 Clear-Host
 $asciilogo
-Write-Host "`n Welcome to DadLANcher!"
-Write-Host "================================="
+Write-Host "`nWelcome to DadLANcher!`n"
+Write-Host "=================================`n"
 Write-Host "1. Start Games"
 Write-Host "2. Configure Wireguard"
-Write-Host "================================="
+Write-Host "`n=================================`n"
 Write-Host "X. Exit`n"
 
 # Prompt user to choose an option
