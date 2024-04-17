@@ -1,7 +1,11 @@
 # Name   : DADLAN.ps1
-# Author : MrCaffeen, 
+# Author : MrCaffeen, JimmyCapps, TheScise, AusSTY
 # Date   : 20/03/2024
 # Note   : Conversion of Batch file for DADLAN/DADWAN use for application network and game controls
+
+#====================================================================================================================
+$Host.ui.rawui.backgroundcolor = "black"
+$Host.ui.rawui.foregroundcolor = "green"
 
 #====================================================================================================================
 # LOAD SUPPLEMENTARY FUNCTIONS,
@@ -13,5 +17,9 @@ function Get-ScriptDirectory {
 	# Split-Path $script:MyInvocation.MyCommand.Path
 }
 # dot source our supplementary functions file
-'C:\DADLAN\scripts\suppFunctions.ps1'
 
+$suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
+
+. $suppFunctions
+
+Menu-MainGame

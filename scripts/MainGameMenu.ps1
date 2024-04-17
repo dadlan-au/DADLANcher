@@ -23,7 +23,7 @@ function ShowMainGameMenu {
         "5" { .\Quake3Menu.ps1 }
         "6" { .\CnCMenu.ps1 }
         "9" { .\InitialLaunch.ps1 }
-        "X" { Exit }
+        "X" { Write-Host Exit }
         default {
             Write-Host "Invalid option. Please select again."
             ShowMainGameMenu

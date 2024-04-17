@@ -1,10 +1,11 @@
 ﻿# Name   : suppfunctions.ps1
-# Author : MrCaffeen, JummyCapps, TheScise
+# Author : MrCaffeen, JimmyCapps, TheScise
 # Date   : 20/03/2024
 # Note   : functions that will run the command scripts
 
 #====================================================================================================================
 # VARIOUS FUNCTIONS
+# function Menu-MainGame
 # function installexe
 # function installmsi
 # function ASCIIlogo
@@ -12,6 +13,40 @@
 # function Get-InstallApp -Application -Version
 # function Check-Wireguard
 #====================================================================================================================
+
+# Function to show the main game menu
+function Menu-MainGame {
+    Clear-Host
+    ASCIIlogo
+    Write-Host "DadLAN Games Menu:`n"
+    Write-Host "=================================`n"
+    Write-Host "1. Launch Battlefield 1942"
+    Write-Host "2. Launch Battlefield 2"
+    Write-Host "3. Launch Warcraft 3"
+    Write-Host "4. Launch Unreal Tournament 2004"
+    Write-Host "5. Launch Quake 3"
+    Write-Host "6. Launch Command & Conquer Renegade: A Path Beyond"
+	Write-Host "`n=================================`n"
+    Write-Host "9. Main Menu"
+    Write-Host "X. Exit`n"
+
+    $option = Read-Host "Choose an option"
+
+    switch ($option) {
+        "1" { .\Battlefield1942Menu.ps1 }
+        "2" { .\Battlefield2Menu.ps1 }
+        "3" { .\Warcraft3Menu.ps1 }
+        "4" { .\UnrealTournament2004Menu.ps1 }
+        "5" { .\Quake3Menu.ps1 }
+        "6" { .\CnCMenu.ps1 }
+        "9" { .\InitialLaunch.ps1 }
+        "X" { Write-Host Exit }
+        default {
+            Write-Host "Invalid option. Please select again."
+            Menu-MainGame
+        }
+    }
+}
 
 #====================================================================================================================
 function installexe {
@@ -34,7 +69,6 @@ function ASCIIlogo {
  |                                 ##   #####                                             |
  |                                 ##   #####                                             |
  |                                      #####                                             |
- |                                      #####                                             |
  |                                      #####   ########                                  |
  |                                      ###  #############                                |
  |                                      ##   ##############                               |
@@ -50,7 +84,6 @@ function ASCIIlogo {
  |        #####   ###     ######        #####      #####         #####   ##      #####    |
  |     ########   #####   ######     ###################      ########   #####   #####    |
  |        #####   ###     ######       #######    ######        ######   ###     #####    |
- |        #####   ###     ######  ###   #####      #####         #####   ##      #####    |
  |        #####   ###     ######        #####      #####         #####   ##      #####    |
  |        #####   ###     #####         #####      #####         #####   ##      #####    |
  |        ###########   #####        ########      ########      ##########   #####       |
@@ -66,7 +99,6 @@ function ASCIIlogo {
  |                                      #####      #####                                  |
  |                                   ########      #####                                  |
  |                                    #######      #####                                  |
- |                                      #####      #####                                  |
  |                                      #####      #####                                  |
  |                                      #####      #####                                  |
  |                                   ########   ###########                               |
@@ -172,5 +204,6 @@ function Check-Wireguard {
             # Call Install Wireguard
             Write-Host '[ERR] Please Reinstall Wireguard'
             sleep 10
+        }
     }
 }
