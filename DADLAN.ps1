@@ -14,4 +14,4 @@ function Get-ScriptDirectory {
 }
 # dot source our supplementary functions file
 'C:\DADLAN\scripts\suppFunctions.ps1'
-'C:\DADLAN\scripts\PSSystrayLauncher.ps1'
+
