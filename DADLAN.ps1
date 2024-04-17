@@ -22,4 +22,13 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 
 . $suppFunctions
 
-Menu-MainGame
+#====================================================================================================================
+$menu = @{}
+
+$menu['main'] = @('Battlefield 1942','Battlefield 2','Warcraft 3','Unreal tournament 2004','Warcraft 3')
+$menu['mainswitch'] = @('')
+#====================================================================================================================
+
+#Menu-MainGame
+
+Menu-Show -MenuName main

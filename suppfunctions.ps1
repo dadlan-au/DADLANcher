@@ -5,6 +5,7 @@
 
 #====================================================================================================================
 # VARIOUS FUNCTIONS
+# function Menu-Show
 # function Menu-MainGame
 # function installexe
 # function installmsi
@@ -13,20 +14,37 @@
 # function Get-InstallApp -Application -Version
 # function Check-Wireguard
 #====================================================================================================================
+function Menu-Show {
+    param (
+        [parameter(Mandatory=$true)][string]$MenuName
+    )
+    
+    if (($menu['main'].Count -gt 0) -and ($menu['main'].Count -lt 9)) {
+        $x = 0
+        foreach ($menuItem in $menu['main']) {
+            $menuoutput += "[ $x ] $menuItem`n"
+            $x ++
+        }
+        $menuoutput += "[ 9 ] Main Menu`n"
+        $menuoutput += "[ X ] Exit"
+    }
+    Clear-Host
+    ASCIIlogo
+    return $menuoutput
+}
 
+#====================================================================================================================
 # Function to show the main game menu
 function Menu-MainGame {
     Clear-Host
     ASCIIlogo
-    Write-Host "DadLAN Games Menu:`n"
-    Write-Host "=================================`n"
     Write-Host "1. Launch Battlefield 1942"
     Write-Host "2. Launch Battlefield 2"
     Write-Host "3. Launch Warcraft 3"
     Write-Host "4. Launch Unreal Tournament 2004"
     Write-Host "5. Launch Quake 3"
     Write-Host "6. Launch Command & Conquer Renegade: A Path Beyond"
-	Write-Host "`n=================================`n"
+	Write-Host "`n"
     Write-Host "9. Main Menu"
     Write-Host "X. Exit`n"
 
@@ -59,7 +77,6 @@ function installmsi {
 #====================================================================================================================
 function ASCIIlogo {
     $ASCIILOGO = ' _________________________________________________________________________________________
- |                                                                                        |
  |                                   ##############                                       |
  |                                 ##   ########                                          |
  |                                 ##   ########                                          |
@@ -89,7 +106,6 @@ function ASCIIlogo {
  |        ###########   #####        ########      ########      ##########   #####       |
  |      #####  ######  ###              ###          ###        ###   ###### ####         |
  |     ######   ##########              ##           ###      #####   ###########         |
- |                                                                                        |
  |                                                                                        |
  |                                      ##      #####                                     |
  |                                   ###################                                  |
