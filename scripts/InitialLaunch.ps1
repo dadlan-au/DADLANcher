@@ -1,5 +1,7 @@
 # This script serves as the initial launch script for DadLANcher
 $Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size(111, 36)
+Set-Location -Path $PSScriptRoot
+3
 # Load ASCII logo
 $asciilogo = Get-Content -Path "..\ASCIILOGO.txt"
 # Set window size
@@ -38,10 +40,11 @@ switch ($option) {
         # Launch the Wireguard configuration script
         .\WireguardConfig.ps1
     }
-    "3" {
+    "x" {
         # Exit the script
         Write-Host "Exiting DadLANcher. Goodbye!"
         Start-Sleep -Seconds 2
+        Clear-Host
         Exit
     }
     default {
