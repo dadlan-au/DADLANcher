@@ -8,4 +8,4 @@ The driver behind this is to improve functionality and allow more modular config
 Each game has its own `GameName.ps1` script so this can be scaled if new games are required.
 
 ## 🔧 Setup & Usage
-- Run `InitialLaunch.ps1`
+- Run `DADLAN.ps1`
