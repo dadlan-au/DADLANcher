@@ -13,24 +13,44 @@
 # function Get-Platform
 # function Get-InstallApp -Application -Version
 # function Check-Wireguard
+
 #====================================================================================================================
 function Menu-Show {
     param (
         [parameter(Mandatory=$true)][string]$MenuName
     )
     
-    if (($menu['main'].Count -gt 0) -and ($menu['main'].Count -lt 9)) {
+    if (($menu[$MenuName].Count -gt 0) -and ($menu[$MenuName].Count -lt 9)) {
         $x = 0
-        foreach ($menuItem in $menu['main']) {
-            $menuoutput += "[ $x ] $menuItem`n"
+        foreach ($menuItem in $menu[$MenuName]) {
+            $menuoutput += "`t[ $x ] $menuItem`n"
             $x ++
         }
-        $menuoutput += "[ 9 ] Main Menu`n"
-        $menuoutput += "[ X ] Exit"
+        $menuoutput += "`n`t[ 9 ] Main Menu`n"
+        $menuoutput += "`t[ X ] Exit"
     }
     Clear-Host
     ASCIIlogo
-    return $menuoutput
+    Write-Host $menuoutput
+
+    $option = Read-Host "Choose an option"
+    switch ($option) {
+        "0" { $menu[$MenuName][0] }
+        "1" { $menu[$MenuName][1] }
+        "2" { $menu[$MenuName][2] }
+        "3" { $menu[$MenuName][3] }
+        "4" { $menu[$MenuName][4] }
+        "5" { $menu[$MenuName][5] }
+        "6" { $menu[$MenuName][6] }
+        "7" { $menu[$MenuName][7] }
+        "8" { $menu[$MenuName][8] }
+        "9" { $menu[$MenuName][9] }
+        "X" { Write-Host Exit }
+        default { 
+            Write-Host "Invalid option. Please select again."
+            Menu-Show -MenuName $MenuName
+        }
+    }
 }
 
 #====================================================================================================================
@@ -120,7 +140,7 @@ function ASCIIlogo {
  |                                   ########   ###########                               |
  |                                    #######    #########                                |
  |                                         ##        ###                                  |
- |________________________________________________________________________________________|'
+ |________________________________________________________________________________________|`n'
 Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green
 }
 

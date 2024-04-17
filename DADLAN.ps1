@@ -26,7 +26,7 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 $menu = @{}
 
 $menu['main'] = @('Battlefield 1942','Battlefield 2','Warcraft 3','Unreal tournament 2004','Warcraft 3')
-$menu['mainswitch'] = @('')
+$menu['network'] = @('Check-Wireguard','Install-Wireguard')
 #====================================================================================================================
 
 #Menu-MainGame
