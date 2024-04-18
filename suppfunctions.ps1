@@ -32,25 +32,6 @@ function Menu-Show {
     Clear-Host
     ASCIIlogo
     Write-Host $menuoutput
-
-    $option = Read-Host "Choose an option"
-    switch ($option) {
-        "0" { $menu[$MenuName][0] }
-        "1" { $menu[$MenuName][1] }
-        "2" { $menu[$MenuName][2] }
-        "3" { $menu[$MenuName][3] }
-        "4" { $menu[$MenuName][4] }
-        "5" { $menu[$MenuName][5] }
-        "6" { $menu[$MenuName][6] }
-        "7" { $menu[$MenuName][7] }
-        "8" { $menu[$MenuName][8] }
-        "9" { $menu[$MenuName][9] }
-        "X" { Write-Host Exit }
-        default { 
-            Write-Host "Invalid option. Please select again."
-            Menu-Show -MenuName $MenuName
-        }
-    }
 }
 
 #====================================================================================================================
