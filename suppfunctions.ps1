@@ -6,24 +6,13 @@
 #====================================================================================================================
 # VARIOUS FUNCTIONS
 # function Menu-Show
-# function Menu-MainGame
+# function Launch-Game
 # function installexe
 # function installmsi
 # function ASCIIlogo
 # function Get-Platform
-# function Get-InstalledApp -Application -Version
+# function Get-InstallApp -Application -Version
 # function Check-Wireguard
-
-#====================================================================================================================
-function Get-InstalledGames {
-    
-    param (
-        [string]$GameName
-    )
-    if (($GameName -eq "bf2") -or ($GameName -eq "")) {
-        $game['bf2install'] = @('')
-    }
-}
 
 #====================================================================================================================
 function Menu-Show {
@@ -37,7 +26,7 @@ function Menu-Show {
             $menuoutput += "`t[ $x ] $menuItem`n"
             $x ++
         }
-        $menuoutput += "`n`t[ 9 ] Main Menu`n"
+        $menuoutput += "`n`t[ M ] Main Menu"
         $menuoutput += "`t[ X ] Exit"
     }
     Clear-Host
@@ -46,36 +35,14 @@ function Menu-Show {
 }
 
 #====================================================================================================================
-# Function to show the main game menu
-function Menu-MainGame {
-    Clear-Host
-    ASCIIlogo
-    Write-Host "1. Launch Battlefield 1942"
-    Write-Host "2. Launch Battlefield 2"
-    Write-Host "3. Launch Warcraft 3"
-    Write-Host "4. Launch Unreal Tournament 2004"
-    Write-Host "5. Launch Quake 3"
-    Write-Host "6. Launch Command & Conquer Renegade: A Path Beyond"
-	Write-Host "`n"
-    Write-Host "9. Main Menu"
-    Write-Host "X. Exit`n"
+function Launch-Game {
+    param (
+        [parameter(Mandatory=$true)][string]$Game,
+        [string]$Args
+    )
+    # check game install if gamefiles exist
 
-    $option = Read-Host "Choose an option"
-
-    switch ($option) {
-        "1" { .\Battlefield1942Menu.ps1 }
-        "2" { .\Battlefield2Menu.ps1 }
-        "3" { .\Warcraft3Menu.ps1 }
-        "4" { .\UnrealTournament2004Menu.ps1 }
-        "5" { .\Quake3Menu.ps1 }
-        "6" { .\CnCMenu.ps1 }
-        "9" { .\InitialLaunch.ps1 }
-        "X" { Write-Host Exit }
-        default {
-            Write-Host "Invalid option. Please select again."
-            Menu-MainGame
-        }
-    }
+    # Launch game -wait
 }
 
 #====================================================================================================================
@@ -86,47 +53,6 @@ function installexe {
 function installmsi {
     Write-Host "Installing MSI"
 }
-#====================================================================================================================
-function Check-Wireguard {
-    $WireGuardApp = "C:\Program Files\WireGuard\wireguard.exe"
-    $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
-    $WireGuardFile = Test-Path $WireGuardApp
-    $WireGuardProcess = Get-Process -Name "wireguard" -ErrorAction SilentlyContinue
-    $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
-    $WireGuardConfigDir = "C:\DADLAN\wireguard_conf\"
-    $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
-    $pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
-    $pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
-
-    # Test Connection
-    if ($pingResult1 -or $pingResult2 -or $pingResult3) { Write-Host "[INFO] Wireguard Ok"; return $true }
-
-    # Check Wireguard
-    if (-not $WireGuardProcess) {
-        if ($WireGuardInstalled -and $WireGuardFile) { 
-            # Check Management Services
-            $wg_mgmt_services = Get-Service |where { $_.Name -like 'WireGuardManager' }
-            if ($wg_mgmt_services.status -eq 'Running') { Write-Host 'Service OK'; return $true }
-            
-            # Check Tunnel Up Down            
-            $wg_services = Get-Service |where { $_.Name -like 'WireGuardTunnel*' }
-            if ($wg_services.status -eq 'Running') { 
-                Write-Host 'Service OK'; return $true 
-            } else {
-                Write-Host '[INFO] Starting Tunnel'
-                $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
-                Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
-            }
-            
-            
-        } else {
-            # Call Install Wireguard
-            Write-Host '[ERR] Please Reinstall Wireguard'
-            sleep 10
-        }
-    }
-}
-
 #====================================================================================================================
 function ASCIIlogo {
     $ASCIILOGO = ' _________________________________________________________________________________________
@@ -176,10 +102,10 @@ function ASCIIlogo {
  |________________________________________________________________________________________|`n'
 Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green
 }
+
 #====================================================================================================================
 function Get-Platform {
     return [System.Environment]::OSVersion.Platform
-    }
 
 if ($IsWindows -or $IsLinux -or $IsMacOs) {
     switch (Get-PSPlatform) {
@@ -202,12 +128,14 @@ if ($IsWindows -or $IsLinux -or $IsMacOs) {
         }
     }
 }
-#====================================================================================================================
+}
 
-function Get-InstallApp {
+#====================================================================================================================
+function Get-InstalledApp() {
+    param (
         [parameter(Mandatory=$true)][string]$Application,
         [version]$Version
-    
+    )
     
     $installedVersion = $null
 
@@ -232,4 +160,45 @@ function Get-InstallApp {
         }
     }
 
+}
+
+#====================================================================================================================
+function Check-Wireguard {
+    $WireGuardApp = "C:\Program Files\WireGuard\wireguard.exe"
+    $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
+    $WireGuardFile = Test-Path $WireGuardApp
+    $WireGuardProcess = Get-Process -Name "wireguard" -ErrorAction SilentlyContinue
+    $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
+    $WireGuardConfigDir = "C:\DADLAN\wireguard_conf\"
+    $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
+    $pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
+    $pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
+
+    # Test Connection
+    if ($pingResult1 -or $pingResult2 -or $pingResult3) { Write-Host "[INFO] Wireguard Ok"; return $true }
+
+    # Check Wireguard
+    if (-not $WireGuardProcess) {
+        if ($WireGuardInstalled -and $WireGuardFile) { 
+            # Check Management Services
+            $wg_mgmt_services = Get-Service |where { $_.Name -like 'WireGuardManager' }
+            if ($wg_mgmt_services.status -eq 'Running') { Write-Host 'Service OK'; return $true }
+            
+            # Check Tunnel Up Down            
+            $wg_services = Get-Service |where { $_.Name -like 'WireGuardTunnel*' }
+            if ($wg_services.status -eq 'Running') { 
+                Write-Host 'Service OK'; return $true 
+            } else {
+                Write-Host '[INFO] Starting Tunnel'
+                $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
+                Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
+            }
+            
+            
+        } else {
+            # Call Install Wireguard
+            Write-Host '[ERR] Please Reinstall Wireguard'
+            sleep 10
+        }
+    }
 }
