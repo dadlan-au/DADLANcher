@@ -11,7 +11,7 @@
 # function installmsi
 # function ASCIIlogo
 # function Get-Platform
-# function Get-InstallApp -Application -Version
+# function Get-InstalledApp -Application -Version
 # function Check-Wireguard
 
 #====================================================================================================================
@@ -76,6 +76,47 @@ function installmsi {
     Write-Host "Installing MSI"
 }
 #====================================================================================================================
+function Check-Wireguard {
+    $WireGuardApp = "C:\Program Files\WireGuard\wireguard.exe"
+    $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
+    $WireGuardFile = Test-Path $WireGuardApp
+    $WireGuardProcess = Get-Process -Name "wireguard" -ErrorAction SilentlyContinue
+    $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
+    $WireGuardConfigDir = "C:\DADLAN\wireguard_conf\"
+    $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
+    $pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
+    $pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
+
+    # Test Connection
+    if ($pingResult1 -or $pingResult2 -or $pingResult3) { Write-Host "[INFO] Wireguard Ok"; return $true }
+
+    # Check Wireguard
+    if (-not $WireGuardProcess) {
+        if ($WireGuardInstalled -and $WireGuardFile) { 
+            # Check Management Services
+            $wg_mgmt_services = Get-Service |where { $_.Name -like 'WireGuardManager' }
+            if ($wg_mgmt_services.status -eq 'Running') { Write-Host 'Service OK'; return $true }
+            
+            # Check Tunnel Up Down            
+            $wg_services = Get-Service |where { $_.Name -like 'WireGuardTunnel*' }
+            if ($wg_services.status -eq 'Running') { 
+                Write-Host 'Service OK'; return $true 
+            } else {
+                Write-Host '[INFO] Starting Tunnel'
+                $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
+                Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
+            }
+            
+            
+        } else {
+            # Call Install Wireguard
+            Write-Host '[ERR] Please Reinstall Wireguard'
+            sleep 10
+        }
+    }
+}
+
+#====================================================================================================================
 function ASCIIlogo {
     $ASCIILOGO = ' _________________________________________________________________________________________
  |                                   ##############                                       |
@@ -124,10 +165,10 @@ function ASCIIlogo {
  |________________________________________________________________________________________|`n'
 Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green
 }
-
 #====================================================================================================================
 function Get-Platform {
     return [System.Environment]::OSVersion.Platform
+    }
 
 if ($IsWindows -or $IsLinux -or $IsMacOs) {
     switch (Get-PSPlatform) {
@@ -150,14 +191,12 @@ if ($IsWindows -or $IsLinux -or $IsMacOs) {
         }
     }
 }
-}
-
 #====================================================================================================================
-function Get-InstalledApp() {
-    param (
+
+function Get-InstallApp {
         [parameter(Mandatory=$true)][string]$Application,
         [version]$Version
-    )
+    
     
     $installedVersion = $null
 
@@ -182,45 +221,4 @@ function Get-InstalledApp() {
         }
     }
 
-}
-
-#====================================================================================================================
-function Check-Wireguard {
-    $WireGuardApp = "C:\Program Files\WireGuard\wireguard.exe"
-    $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
-    $WireGuardFile = Test-Path $WireGuardApp
-    $WireGuardProcess = Get-Process -Name "wireguard" -ErrorAction SilentlyContinue
-    $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
-    $WireGuardConfigDir = "C:\DADLAN\wireguard_conf\"
-    $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
-    $pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
-    $pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
-
-    # Test Connection
-    if ($pingResult1 -or $pingResult2 -or $pingResult3) { Write-Host "[INFO] Wireguard Ok"; return $true }
-
-    # Check Wireguard
-    if (-not $WireGuardProcess) {
-        if ($WireGuardInstalled -and $WireGuardFile) { 
-            # Check Management Services
-            $wg_mgmt_services = Get-Service |where { $_.Name -like 'WireGuardManager' }
-            if ($wg_mgmt_services.status -eq 'Running') { Write-Host 'Service OK'; return $true }
-            
-            # Check Tunnel Up Down            
-            $wg_services = Get-Service |where { $_.Name -like 'WireGuardTunnel*' }
-            if ($wg_services.status -eq 'Running') { 
-                Write-Host 'Service OK'; return $true 
-            } else {
-                Write-Host '[INFO] Starting Tunnel'
-                $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
-                Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
-            }
-            
-            
-        } else {
-            # Call Install Wireguard
-            Write-Host '[ERR] Please Reinstall Wireguard'
-            sleep 10
-        }
-    }
 }
