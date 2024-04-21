@@ -24,8 +24,10 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 
 #====================================================================================================================
 $menu = @{}
+$menuaction = @{}
 
-$menu['main'] = @('Battlefield 1942','Battlefield 2','Warcraft 3','Unreal tournament 2004','Warcraft 3')
+$menu['main'] = @('Battlefield 1942','Battlefield 2','Commander & Conquor','Unreal tournament 2004','Warcraft 3')
+$menuaction['main'] = @('$select_menu = "bf1942"','Menu-Show -MenuName bf2','Menu-Show -MenuName cnc','Menu-Show -MenuName ut2004','Menu-Show -MenuName warcraft3')
 
 $menu['bf2'] = @('Start Battlefield 2','Launch DADLAN BF2 10.0.0.102','Configure Game Directory')
 $menu['bf1942'] = @('Start Battlefield 1942','Launch DADLAN BF1942 10.0.0.102','Configure Game Directory')
@@ -35,6 +37,15 @@ $menu['quake'] = @('Start Quake 2','Start Quake 3','Launch DADLAN Quake 2','Laun
 $menu['ut2004'] = @('Start Unreal Tournament','Configure Game Directory')
 $menu['warcraft3'] = @('Start Warcraft 3','Start Warcraft 3 Frozen Throne','Launch Lancraft','Configure Game Directory')
 #====================================================================================================================
+$game = @{}
+
+$game['bf2'] = @('')
+$game['bf1942'] = @('')
+$game['bf2'] = @('')
+$game['quake'] = @('')
+$game['ut2004'] = @('')
+$game['warcraft3'] = @('')
+#====================================================================================================================
 
 #Menu-MainGame
 $select_menu = "main"
@@ -42,16 +53,16 @@ do {
     Menu-Show -MenuName $select_menu
     $option = Read-Host "Choose an option"
     switch ($option) {
-        "0" { $menu[$MenuName][0] }
-        "1" { $menu[$MenuName][1] }
-        "2" { $menu[$MenuName][2] }
-        "3" { $menu[$MenuName][3] }
-        "4" { $menu[$MenuName][4] }
-        "5" { $menu[$MenuName][5] }
-        "6" { $menu[$MenuName][6] }
-        "7" { $menu[$MenuName][7] }
-        "8" { $menu[$MenuName][8] }
-        "9" { $menu[$MenuName][9] }
+        "0" { $menuaction[$MenuName][0] }
+        "1" { $menuaction[$MenuName][1] }
+        "2" { $menuaction[$MenuName][2] }
+        "3" { $menuaction[$MenuName][3] }
+        "4" { $menuaction[$MenuName][4] }
+        "5" { $menuaction[$MenuName][5] }
+        "6" { $menuaction[$MenuName][6] }
+        "7" { $menuaction[$MenuName][7] }
+        "8" { $menuaction[$MenuName][8] }
+        "9" { $menuaction[$MenuName][9] }
         "X" { Write-Host Exit }
         default { 
             Write-Host "Invalid option. Please select again."

@@ -15,6 +15,17 @@
 # function Check-Wireguard
 
 #====================================================================================================================
+function Get-InstalledGames {
+    
+    param (
+        [string]$GameName
+    )
+    if (($GameName -eq "bf2") -or ($GameName -eq "")) {
+        $game['bf2install'] = @('')
+    }
+}
+
+#====================================================================================================================
 function Menu-Show {
     param (
         [parameter(Mandatory=$true)][string]$MenuName
