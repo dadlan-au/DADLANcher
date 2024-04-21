@@ -31,7 +31,8 @@ function Menu-Show {
     }
     Clear-Host
     ASCIIlogo
-    Write-Host $menuoutput
+    #Write-Host $menuoutput
+    $menuoutput |get-easyview -Milliseconds 60 -Pace Line
 }
 
 #====================================================================================================================
@@ -53,6 +54,30 @@ function installexe {
 function installmsi {
     Write-Host "Installing MSI"
 }
+#====================================================================================================================
+function get-easyview{
+
+    param(
+        [int]$Milliseconds= 50,
+        [ValidateSet("Line","Character")] 
+        [String] 
+        $Pace = "Character"
+    )
+
+    If($pace -eq "Character"){
+        $text = [char[]]($input | Out-String)
+        $parameters = @{NoNewline = $true}
+    } Else {
+        $text = ($input | out-string) -split "`r`n"
+        $parameters = @{NoNewline = $false}
+    }
+
+    $text | ForEach-Object{
+        Write-Host $_ @parameters
+        if($_ -notmatch "^\s+$"){Sleep -Milliseconds $Milliseconds}
+    }
+}
+
 #====================================================================================================================
 function ASCIIlogo {
     $ASCIILOGO = ' _________________________________________________________________________________________
@@ -99,8 +124,9 @@ function ASCIIlogo {
  |                                   ########   ###########                               |
  |                                    #######    #########                                |
  |                                         ##        ###                                  |
- |________________________________________________________________________________________|`n'
-Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green
+ |________________________________________________________________________________________|'
+#Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green |get-easyview -Milliseconds 10 -Pace Character
+$ASCIILOGO |get-easyview -Milliseconds 60 -Pace Line
 }
 
 #====================================================================================================================
