@@ -26,20 +26,20 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 $menu = @{}
 $menuaction = @{}
 
-$menu['main'] = @('Battlefield 1942','Battlefield 2','Command and Conquer','Unreal tournament 2004','Warcraft 3')
-$menuaction['main'] = @('$select_menu = "bf1942"','$select_menu = "bf2"','$select_menu = "cnc"','$select_menu = "ut2004"','$select_menu = "warcraft3"')
+$menu['main'] = @('Battlefield 1942','Battlefield 2','Command and Conquer','Unreal tournament 2004','Warcraft 3','Chess','GLOBAL THERMONUCLEAR WAR')
+$menuaction['main'] = @('$select_menu = "bf1942"','$select_menu = "bf2"','$select_menu = "cnc"','$select_menu = "ut2004"','$select_menu = "warcraft3"','Write-Host Chess is in the cupboard','GlobalThermonuclearWar')
 $menu['bf2'] = @('Start Battlefield 2','Launch DADLAN BF2 10.0.0.102','Configure Game Directory')
 $menuaction['bf2'] = @('')
 $menu['bf1942'] = @('Start Battlefield 1942','Launch DADLAN BF1942 10.0.0.102','Configure Game Directory')
-$menuaction['bf1942'] = @()
+$menuaction['bf1942'] = @('')
 $menu['cnc'] = @('Start CnC with no parameters','Host LAN Game','Join LAN Game','Join Internet Game','Configure Game Directory')
-$menuaction['cnc'] = @()
+$menuaction['cnc'] = @('')
 $menu['network'] = @('Check-Wireguard','Install-Wireguard')
-$menuaction['network'] = @()
+$menuaction['network'] = @('')
 $menu['quake'] = @('Start Quake 2','Start Quake 3','Launch DADLAN Quake 2','Launch DADLAN Quake 3','Configure Game Directory')
-$menuaction['quake'] = @()
+$menuaction['quake'] = @('')
 $menu['ut2004'] = @('Start Unreal Tournament','Configure Game Directory')
-$menuaction['ut2004'] = @()
+$menuaction['ut2004'] = @('')
 $menu['warcraft3'] = @('Start Warcraft 3','Start Warcraft 3 Frozen Throne','Launch Lancraft','Configure Game Directory')
 $menuaction['warcraft3'] = @('')
 #====================================================================================================================

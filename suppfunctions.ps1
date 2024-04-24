@@ -27,12 +27,12 @@ function Menu-Show {
             $x ++
         }
         $menuoutput += "`n`t[ M ] Main Menu"
-        $menuoutput += "`t[ X ] Exit"
+        $menuoutput += "`n`t[ X ] Exit`n`n"
     }
     Clear-Host
     ASCIIlogo
     #Write-Host $menuoutput
-    $menuoutput |get-easyview -Milliseconds 60 -Pace Line
+    $menuoutput |get-easyview
 }
 
 #====================================================================================================================
@@ -58,10 +58,9 @@ function installmsi {
 function get-easyview{
 
     param(
-        [int]$Milliseconds= 50,
+        [int]$Milliseconds= 60,
         [ValidateSet("Line","Character")] 
-        [String] 
-        $Pace = "Character"
+        [String]$Pace = "Character"
     )
 
     If($pace -eq "Character"){
@@ -76,6 +75,76 @@ function get-easyview{
         Write-Host $_ @parameters
         if($_ -notmatch "^\s+$"){Sleep -Milliseconds $Milliseconds}
     }
+}
+#====================================================================================================================
+function GlobalThermonuclearWar {
+    # https://github.com/built1n/wargames/blob/master/MAP
+    $WarGames = @{}
+    $WarGames['asciimap'] = '
+                                                                           .
+   __________--^-^-\.             ____                             __----/^\.
+|\/.                \__.      ___/   ||                        ___/       _/._-_    .
+|                      \.    /.     /.                __    __/          /__/   \/^^\___-__.
+|                       L-^-/.     /.                 \.\_--                               \.
+|                                 /                  _/                                 _/\/.
+|.                               |                 _/.                            __ __/
+ \.                              /.               /                           ___/.//
+  \__                           /                |                           /    \/.
+     \________         __ _____.\.                \_.          ____--_   /\_ \    
+              \__.    /  V.    \ \                  \__      _/.      \_/   //
+                 \   /.         \/.                    \.  _/.             //
+                  \_/.                                   \_/             
+
+           UNITED STATES                                   SOVIET UNION
+
+'
+    
+    Clear-Host
+    echo "LOGON:`t DADLAN`n`n" |get-easyview
+    ASCIIlogo
+    sleep 5
+    Clear-Host
+    echo "GREETINGS PROFESSOR FALKEN.`n" |get-easyview
+    sleep 6
+    echo "Hello.`n`n" |get-easyview
+    sleep 5
+    echo "HOW ARE YOU FEELING TODAY?`n" |get-easyview
+    sleep 8
+    echo "I'm fine. How are you?`n`n" |get-easyview
+    sleep 5
+    echo "EXCELLENT. IT'S BEEN A LONG TIME. CAN YOU EXPLAIN THE REMOVAL OF YOUR USER ACCOUNT ON 6/23/73?`n" |get-easyview
+    sleep 8
+    echo "People sometimes make mistakes.`n`n" |get-easyview
+    sleep 5
+    echo "YES THEY DO. SHALL WE PLAY A GAME?`n" |get-easyview
+    sleep 8
+    echo "Love to. How about Global Thermonuclear War?`n`n" |get-easyview
+    sleep 5
+    echo "WOULDN'T YOU PREFER A GOOD GAME OF CHESS?`n" |get-easyview
+    sleep 5
+    echo "Later. Let's play Global Thermonuclear War.`n`n" |get-easyview
+    sleep 10
+    echo "FINE.`n" |get-easyview
+    sleep 10
+    Clear-Host
+    $WarGames['asciimap'] |get-easyview -Milliseconds 150 -Pace Line
+    echo "WHICH SIDE DO YOU WANT?" |get-easyview
+    echo "`n  1.  UNITED STATES" |get-easyview
+    echo "`n  2.  SOVIET UNION" |get-easyview
+    echo "`nPLEASE CHOSE ONE:" |get-easyview
+
+    do {
+        $option = Read-Host
+        switch ($option) {
+            "1" { sleep 5 }
+            "2" { sleep 5 }
+        }
+    } until (($option -eq 1) -or ($option -eq 2))
+
+    Clear-Host
+    echo "AWAITING FIRST STRIKE COMMAND`n`n" |get-easyview
+    sleep 8
+    echo "" |get-easyview
 }
 
 #====================================================================================================================
