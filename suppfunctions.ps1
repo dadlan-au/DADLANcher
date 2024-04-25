@@ -14,6 +14,40 @@
 # function Get-InstallApp -Application -Version
 # function Check-Wireguard
 
+
+#====================================================================================================================
+function Play-Music {
+    #[System.Console]::Beep(200,1000)
+    #[System.Console]::Beep(600,1000)
+     
+    #[System.Media.SystemSounds]::Exclamation.play()
+    #[System.Media.SystemSounds]::Hand.Play()
+ 
+    # Create an instance of the Windows Media Player COM object
+    $mediaPlayer = New-Object -ComObject WMPlayer.OCX
+    # Load the MP3 file
+    $mediaPlayer.URL = $PSScriptRoot +"\8bit-music-for-game-68698.mp3"
+    # Play the MP3 file
+    $mediaPlayer.controls.playItem($mediaPlayer.controls.currentItem)
+
+    #sleep 60
+
+    #$mediaPlayer.controls.stop()
+}
+#====================================================================================================================
+function Config-Game {
+    param (
+        [parameter(Mandatory=$true)][string]$Game
+    )
+    if ($Game = 'bf2') {
+        $playername = Read-Host "Enter Player Name for BF2"
+        $playerpass = Read-Host "Enter Player Pass for BF2"
+        $global:gameconfig[$Game] = '+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567'
+        #$gameconfig[$Game] = @('+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567')
+    } 
+    if ($Game = 'bf1942') {
+    }
+}
 #====================================================================================================================
 function Menu-Show {
     param (
@@ -34,16 +68,43 @@ function Menu-Show {
     #Write-Host $menuoutput
     $menuoutput |get-easyview
 }
+#====================================================================================================================
+function Check-GameInstall {
+    param (
+        [parameter(Mandatory=$true)][string]$Game
+    )
+    foreach ($path in $global:gameinstall[$Game]) {
+        $directory = [System.IO.Path]::GetDirectoryName($path)
+        $filename = [System.IO.Path]::GetFileName($path)
+        # Check if the directory exists
+        if (Test-Path $directory) {
+            $global:gameworkdir[$Game] = @($directory)
+            # Combine directory and filename to check if the file exists
+            $fullPath = Join-Path -Path $directory -ChildPath $filename
+            if (Test-Path $fullPath) {
+                $global:game[$Game] = @($fullPath)
+            } else {
+                Write-Host "Game file does not exist: $fullPath"
+            }
+        } else {
+            Write-Host "Directory does not exist: $directory"
+        }
+    }
+}
 
 #====================================================================================================================
 function Launch-Game {
     param (
         [parameter(Mandatory=$true)][string]$Game,
-        [string]$Args
+        $Args
     )
     # check game install if gamefiles exist
-
-    # Launch game -wait
+    Check-GameInstall -Game $Game
+    if ($Args) {
+        Start-Process -WorkingDirectory $gameworkdir[$Game] -FilePath $game[$Game] -ArgumentLIst $Args -Wait 
+    } else {
+        Start-Process -WorkingDirectory $gameworkdir[$Game] -FilePath $game[$Game] -Wait
+    }
 }
 
 #====================================================================================================================

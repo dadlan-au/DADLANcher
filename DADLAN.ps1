@@ -9,6 +9,8 @@ $Host.ui.rawui.foregroundcolor = "green"
 
 #====================================================================================================================
 # LOAD SUPPLEMENTARY FUNCTIONS,
+#$PSScriptRoot
+
 function Get-ScriptDirectory {
 	$Invocation = (Get-Variable MyInvocation -Scope 1).Value
 	Split-Path $Invocation.MyCommand.Path
@@ -23,14 +25,24 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 . $suppFunctions
 
 #====================================================================================================================
+$game = @{}
+$gameworkdir = @{}
+$gameconfig = @{}
+
+$gameinstall['bf2'] = @('C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe','D:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe')
+$gameinstall['bf1942'] = @('C:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe','D:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe')
+$gameinstall['ut2004'] = @('C:\GOG Games\Unreal Tournament 2004\System\UT2004.exe','D:\GOG Games\Unreal Tournament 2004\System\UT2004.exe')
+$gameinstall['warcraft3'] = @('C:\Program Files (x86)\Warcraft III\Warcraft III.exe','D:\Program Files (x86)\Warcraft III\Warcraft III.exe')
+$gameinstall['warcraft3tft'] = @('C:\Program Files (x86)\Warcraft III\Frozen Throne.exe','D:\Program Files (x86)\Warcraft III\Frozen Throne.exe')
+#====================================================================================================================
 $menu = @{}
 $menuaction = @{}
 
 $menu['main'] = @('Battlefield 1942','Battlefield 2','Command and Conquer','Unreal tournament 2004','Warcraft 3','Chess','GLOBAL THERMONUCLEAR WAR')
 $menuaction['main'] = @('$select_menu = "bf1942"','$select_menu = "bf2"','$select_menu = "cnc"','$select_menu = "ut2004"','$select_menu = "warcraft3"','Write-Host Chess is in the cupboard','GlobalThermonuclearWar')
-$menu['bf2'] = @('Start Battlefield 2','Launch DADLAN BF2 10.0.0.102','Configure Game Directory')
-$menuaction['bf2'] = @('')
-$menu['bf1942'] = @('Start Battlefield 1942','Launch DADLAN BF1942 10.0.0.102','Configure Game Directory')
+$menu['bf2'] = @('Start Battlefield 2','Launch DADLAN BF2 10.0.0.102','ConfigureSettings',$gameconfig['bf2'])
+$menuaction['bf2'] = @('Launch-Game -Game bf2',"Launch-Game -Game bf2 -Args {$gameconfig[$select_menu]}",'Config-Game -Game bf2')
+$menu['bf1942'] = @('Start Battlefield 1942','Launch DADLAN BF1942 10.0.0.102','Configure Game Settings')
 $menuaction['bf1942'] = @('')
 $menu['cnc'] = @('Start CnC with no parameters','Host LAN Game','Join LAN Game','Join Internet Game','Configure Game Directory')
 $menuaction['cnc'] = @('')
@@ -43,14 +55,8 @@ $menuaction['ut2004'] = @('')
 $menu['warcraft3'] = @('Start Warcraft 3','Start Warcraft 3 Frozen Throne','Launch Lancraft','Configure Game Directory')
 $menuaction['warcraft3'] = @('')
 #====================================================================================================================
-$gameinstall = @{}
 
-$gameinstall['bf2'] = @('C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe','D:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe')
-$gameinstall['bf1942'] = @('C:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe','D:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe')
-$gameinstall['ut2004'] = @('C:\GOG Games\Unreal Tournament 2004\System\UT2004.exe','D:\GOG Games\Unreal Tournament 2004\System\UT2004.exe')
-$gameinstall['warcraft3'] = @('C:\Program Files (x86)\Warcraft III\Warcraft III.exe','D:\Program Files (x86)\Warcraft III\Warcraft III.exe')
-$gameinstall['warcraft3tft'] = @('C:\Program Files (x86)\Warcraft III\Frozen Throne.exe','D:\Program Files (x86)\Warcraft III\Frozen Throne.exe')
-#====================================================================================================================
+$player = Play-Music
 
 #Menu-MainGame
 $select_menu = "main"
