@@ -25,9 +25,9 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 . $suppFunctions
 
 #====================================================================================================================
-$game = @{}
 $gameworkdir = @{}
 $gameconfig = @{}
+$gamefile = @{}
 
 $gameinstall['bf2'] = @('C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe','D:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe')
 $gameinstall['bf1942'] = @('C:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe','D:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe')
@@ -41,7 +41,7 @@ $menuaction = @{}
 $menu['main'] = @('Battlefield 1942','Battlefield 2','Command and Conquer','Unreal tournament 2004','Warcraft 3','Chess','GLOBAL THERMONUCLEAR WAR')
 $menuaction['main'] = @('$select_menu = "bf1942"','$select_menu = "bf2"','$select_menu = "cnc"','$select_menu = "ut2004"','$select_menu = "warcraft3"','Write-Host Chess is in the cupboard','GlobalThermonuclearWar')
 $menu['bf2'] = @('Start Battlefield 2','Launch DADLAN BF2 10.0.0.102','ConfigureSettings',$gameconfig['bf2'])
-$menuaction['bf2'] = @('Launch-Game -Game bf2',"Launch-Game -Game bf2 -Args {$gameconfig[$select_menu]}",'Config-Game -Game bf2')
+$menuaction['bf2'] = @('Launch-Game -Game bf2',"Launch-Game -Game bf2 -Args $gameconfig['bf2']",'Config-Game -Game bf2')
 $menu['bf1942'] = @('Start Battlefield 1942','Launch DADLAN BF1942 10.0.0.102','Configure Game Settings')
 $menuaction['bf1942'] = @('')
 $menu['cnc'] = @('Start CnC with no parameters','Host LAN Game','Join LAN Game','Join Internet Game','Configure Game Directory')

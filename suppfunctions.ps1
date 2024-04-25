@@ -82,7 +82,8 @@ function Check-GameInstall {
             # Combine directory and filename to check if the file exists
             $fullPath = Join-Path -Path $directory -ChildPath $filename
             if (Test-Path $fullPath) {
-                $global:game[$Game] = @($fullPath)
+                $global:gamefile[$Game] = @($fullPath)
+                return
             } else {
                 Write-Host "Game file does not exist: $fullPath"
             }
@@ -100,10 +101,15 @@ function Launch-Game {
     )
     # check game install if gamefiles exist
     Check-GameInstall -Game $Game
+
+    $workdir = "C:\Program Files (x86)\EA GAMES\Battlefield 2"
+    $gameexe = "C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe"
+
     if ($Args) {
-        Start-Process -WorkingDirectory $gameworkdir[$Game] -FilePath $game[$Game] -ArgumentLIst $Args -Wait 
+        Start-Process -WorkingDirectory $workdir -FilePath $gameexe -ArgumentLIst $Args -Wait
     } else {
-        Start-Process -WorkingDirectory $gameworkdir[$Game] -FilePath $game[$Game] -Wait
+        Start-Process -WorkingDirectory $workdir -FilePath $gameexe -Wait
+        Start-Process -FilePath $gameexe -Wait
     }
 }
 
@@ -119,7 +125,7 @@ function installmsi {
 function get-easyview{
 
     param(
-        [int]$Milliseconds= 60,
+        [int]$Milliseconds= 10,
         [ValidateSet("Line","Character")] 
         [String]$Pace = "Character"
     )
@@ -256,7 +262,7 @@ function ASCIIlogo {
  |                                         ##        ###                                  |
  |________________________________________________________________________________________|'
 #Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green |get-easyview -Milliseconds 10 -Pace Character
-$ASCIILOGO |get-easyview -Milliseconds 60 -Pace Line
+$ASCIILOGO |get-easyview -Milliseconds 10 -Pace Line
 }
 
 #====================================================================================================================
