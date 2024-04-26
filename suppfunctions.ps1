@@ -35,32 +35,19 @@ function Play-Music {
     #$mediaPlayer.controls.stop()
 }
 #====================================================================================================================
-function Config-Game {
-    param (
-        [parameter(Mandatory=$true)][string]$Game
-    )
-    if ($Game = 'bf2') {
-        $playername = Read-Host "Enter Player Name for BF2"
-        $playerpass = Read-Host "Enter Player Pass for BF2"
-        $global:gameconfig[$Game] = '+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567'
-        #$gameconfig[$Game] = @('+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567')
-    } 
-    if ($Game = 'bf1942') {
-    }
-}
-#====================================================================================================================
 function Menu-Show {
     param (
         [parameter(Mandatory=$true)][string]$MenuName
     )
     
-    if (($menu[$MenuName].Count -gt 0) -and ($menu[$MenuName].Count -lt 9)) {
+    if (($menu[$MenuName].Count -gt 0) -and ($menu[$MenuName].Count -lt 11)) {
         $x = 0
         foreach ($menuItem in $menu[$MenuName]) {
             $menuoutput += "`t[ $x ] $menuItem`n"
             $x ++
         }
-        $menuoutput += "`n`t[ M ] Main Menu"
+        if (Check-WireGuard) { $menuoutput += "`n`t[ N ] WireGuard Network" }
+        if ($select_menu -ne "main") { $menuoutput += "`n`t[ M ] Main Menu" }
         $menuoutput += "`n`t[ X ] Exit`n`n"
     }
     Clear-Host
@@ -97,7 +84,7 @@ function Check-GameInstall {
 function Launch-Game {
     param (
         [parameter(Mandatory=$true)][string]$Game,
-        $Args
+        [string]$Args
     )
     # check game install if gamefiles exist
     Check-GameInstall -Game $Game
@@ -109,17 +96,59 @@ function Launch-Game {
         Start-Process -WorkingDirectory $workdir -FilePath $gameexe -ArgumentLIst $Args -Wait
     } else {
         Start-Process -WorkingDirectory $workdir -FilePath $gameexe -Wait
-        Start-Process -FilePath $gameexe -Wait
     }
 }
 
 #====================================================================================================================
-function installexe {
-    Write-Host "Installing EXE"
+function Config-Game {
+    param (
+        [parameter(Mandatory=$true)][string]$Game
+    )
+    if ($Game = 'bf2') {
+        $playername = Read-Host "Enter Player Name for BF2"
+        $playerpass = Read-Host "Enter Player Pass for BF2"
+        $global:gameconfig[$Game] = '+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567'
+        #$gameconfig[$Game] = @('+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567')
+    } 
+    if ($Game = 'bf1942') {
+    }
 }
 #====================================================================================================================
+function installexe {
+    param (
+        [parameter(Mandatory = $true)][string]$pname,
+        [parameter(Mandatory=$true)][string]$purl,
+        [string]$pargs
+    )    
+    Write-Host "Installing EXE"
+
+    cd $env:TEMP
+    $filename = $pname + '.msi'
+
+    # Download and install Powershell (dependency)
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -Uri $purl -OutFile $filename
+    Start-Process $filename "/q" $pargs
+    Remove-Item $filename
+}
+
+#====================================================================================================================
 function installmsi {
-    Write-Host "Installing MSI"
+    param (
+        [parameter(Mandatory = $true)][string]$pname,
+        [parameter(Mandatory=$true)][string]$purl,
+        [string]$pargs
+    )    
+    Write-Host "Installing EXE"
+
+    cd $env:TEMP
+    $filename = $pname + '.msi'
+
+    # Download and install Powershell (dependency)
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -Uri $purl -OutFile $filename
+    Start-Process msiexec.exe -Wait -ArgumentList "/i $filename /quiet"
+    Remove-Item $filename
 }
 #====================================================================================================================
 function get-easyview{
@@ -333,25 +362,33 @@ function Check-Wireguard {
     $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
     $WireGuardConfigDir = "C:\DADLAN\wireguard_conf\"
     $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
-    $pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
-    $pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
+    #$pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
+    #$pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
 
     # Test Connection
-    if ($pingResult1 -or $pingResult2 -or $pingResult3) { Write-Host "[INFO] Wireguard Ok"; return $true }
+    # if ($pingResult1 -or $pingResult2 -or $pingResult3) { 
+    if ($pingResult1) { 
+        #Write-Host "[INFO] Wireguard Ok"
+        return $true 
+    }
 
     # Check Wireguard
     if (-not $WireGuardProcess) {
         if ($WireGuardInstalled -and $WireGuardFile) { 
             # Check Management Services
             $wg_mgmt_services = Get-Service |where { $_.Name -like 'WireGuardManager' }
-            if ($wg_mgmt_services.status -eq 'Running') { Write-Host 'Service OK'; return $true }
+            if ($wg_mgmt_services.status -eq 'Running') { 
+                #Write-Host 'Service OK'
+                return $true
+            }
             
             # Check Tunnel Up Down            
             $wg_services = Get-Service |where { $_.Name -like 'WireGuardTunnel*' }
             if ($wg_services.status -eq 'Running') { 
-                Write-Host 'Service OK'; return $true 
+                #Write-Host 'Service OK'
+                return $true 
             } else {
-                Write-Host '[INFO] Starting Tunnel'
+                #Write-Host '[INFO] Starting Tunnel'
                 $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
                 Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
             }
@@ -361,6 +398,7 @@ function Check-Wireguard {
             # Call Install Wireguard
             Write-Host '[ERR] Please Reinstall Wireguard'
             sleep 10
+            return $false
         }
     }
 }
