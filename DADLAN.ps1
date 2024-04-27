@@ -32,6 +32,8 @@ $download = @{}
 
 $download['wireguard'] = "https://download.wireguard.com/windows-client/wireguard-installer.exe"
 
+#====================================================================================================================
+$gameinstall = @{}
 $gameinstall['bf2'] = @('C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe','D:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe')
 $gameinstall['bf1942'] = @('C:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe','D:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe')
 $gameinstall['cnc'] = @('')

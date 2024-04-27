@@ -90,7 +90,9 @@ function Launch-Game {
     Check-GameInstall -Game $Game
 
     $workdir = "C:\Program Files (x86)\EA GAMES\Battlefield 2"
+    $global:gameworkdir['bf2'] = "C:\Program Files (x86)\EA GAMES\Battlefield 2"
     $gameexe = "C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe"
+    $global:gamefile = "C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe"
 
     if ($Args) {
         Start-Process -WorkingDirectory $workdir -FilePath $gameexe -ArgumentLIst $Args -Wait
