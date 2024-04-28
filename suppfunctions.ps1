@@ -113,6 +113,7 @@ function Config-Game {
         #$gameconfig[$Game] = @('+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567')
     } 
     if ($Game = 'bf1942') {
+
     }
 }
 #====================================================================================================================

@@ -25,14 +25,14 @@ $suppFunctions = Join-Path (Get-ScriptDirectory) suppfunctions.ps1
 . $suppFunctions
 
 #====================================================================================================================
-$gameworkdir = @{}
-$gameconfig = @{}
-$gamefile = @{}
 $download = @{}
-
 $download['wireguard'] = "https://download.wireguard.com/windows-client/wireguard-installer.exe"
+$download['powershell'] = "https://github.com/PowerShell/PowerShell/releases/download/v7.4.2/PowerShell-7.4.2-win-x64.msi"
 
 #====================================================================================================================
+$gamefile = @{}
+$gameconfig = @{}
+$gameworkdir = @{}
 $gameinstall = @{}
 $gameinstall['bf2'] = @('C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe','D:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe')
 $gameinstall['bf1942'] = @('C:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe','D:\Program Files (x86)\EA Games\Battlefield 1942\BF1942.exe')
