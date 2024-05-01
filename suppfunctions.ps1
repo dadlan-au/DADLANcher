@@ -71,29 +71,25 @@ function Update-GameInstall {
             if (Test-Path $global:gameinstall[$Game][$x]) {
                 $global:gamefile[$Game] = $global:gameinstall[$Game][$x]
                 return
-            } else {
-                Write-Host "Game file does not exist: $global:gaminstall[$Game][$x]"
-                Start-Sleep -Seconds 10
-            }
-        } else {
-            #Write-Host "Directory does not exist: $directory"
-            #Start-Sleep -Seconds 10
+            } 
+            $x ++
         }
+        Write-Host "404 GameFiles Not found" 
+        Start-Sleep 10
     }
 }
 
 #====================================================================================================================
 function Start-Game {
     param (
-        [parameter(Mandatory=$true)][string]$Game,
-        [string]$Args
+        [parameter(Mandatory=$true)][string]$Game
     )
     # check game install if gamefiles exist
     Update-GameInstall -Game $Game
     $directory = [System.IO.Path]::GetDirectoryName($global:gamefile[$Game])
     Set-Location -Path $directory
     
-    if ($Args) {
+    if ($global:gameconfig[$Game] -ne $null) {
         & $global:gamefile[$Game] $global:gameconfig[$Game]
         #Start-Process -FilePath $global:gamefile[$Game] -Wait -ArgumentList $Args
         #Invoke-Expression "& '$global:gamefile[$Game]' $global:gameconfig[$Game]"
@@ -111,7 +107,7 @@ function Start-Game {
         #$processStartInfo.Filename = $global:gamefile[$Game]
         #$process = [System.Diagnostics.Process]::Start($processStartInfo)
     }
-    Start-Sleep 30
+    Start-Sleep 10
 }
 
 #====================================================================================================================
@@ -121,37 +117,38 @@ function Update-Game {
     )
     Write-Host 'old gameconfig:' $global:gameconfig[$Game]
 
+        $global:playername = Read-Host "Enter Player Name"
+        $global:playerpass = Read-Host "Enter Player Pass for Battlefield"
+
     if ($Game = 'bf2') {
-        $global:playername = Read-Host "Enter Player Name for BF2"
-        $global:playerpass = Read-Host "Enter Player Pass for BF2"
         $global:gameconfig[$Game] = "+playerName $global:playername +playerPassword $global:playerpass +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567"
-        #$gameconfig[$Game] = @('+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567')
     } 
     if ($Game = 'bf1942') {
+        $global:gameconfig[$Game] = "+playerName $global:playername +password $global:playerpass +restart 1 +joinServer 10.0.0.102:14567"
+    }
+    if ($Game = 'cnc') {
         $global:gameconfig[$Game] = ''
     }
-    if ($GAME = 'cnc') {
+    if ($Game = 'quake2') {
+        #$global:gameconfig[$Game] = "+connect 10.0.0.102 +set cddir D:\install\data +set basedir C:\Quake2"
+        $global:gameconfig[$Game] = "+connect 10.0.0.102 +name $global:playername"
+    }
+    if ($Game = 'quake3') {
+        $global:gameconfig[$Game] = "+connect 10.0.0.102 +name $global:playername"
+    }
+    if ($Game = 'ut2004') {
         $global:gameconfig[$Game] = ''
     }
-    if ($GAME = 'quake2') {
+    if ($Game = 'warcraft3') {
         $global:gameconfig[$Game] = ''
     }
-    if ($GAME = 'quake3') {
-        $global:gameconfig[$Game] = ''
-    }
-    if ($GAME = 'ut2004') {
-        $global:gameconfig[$Game] = ''
-    }
-    if ($GAME = 'warcraft3') {
-        $global:gameconfig[$Game] = ''
-    }
-    if ($GAME = 'warcraft3tft') {
+    if ($Game = 'warcraft3tft') {
         $global:gameconfig[$Game] = ''
     }
 
 
     Write-Host 'new gameconfig:' $global:gameconfig[$Game]
-    Start-Sleep 10
+    Start-Sleep 5
 }
 #====================================================================================================================
 function installexe {
