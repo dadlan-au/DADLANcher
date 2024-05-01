@@ -5,18 +5,23 @@
 
 #====================================================================================================================
 # VARIOUS FUNCTIONS
-# function Menu-Show
-# function Launch-Game
-# function installexe
+# function Start-Music
+# function Get-Menu -MenuName
+# function Update-GameInstall -Game
+# function Start-Game -Game
+# function Update-Game -Game
 # function installmsi
+# function installexe
+# function get-easyview -Milliseconds -Pace {Line|Character}
+# function GlobalThermonuclearWar
 # function ASCIIlogo
 # function Get-Platform
 # function Get-InstallApp -Application -Version
-# function Check-Wireguard
+# function Test-Wireguard
 
-
+#Get-Verb
 #====================================================================================================================
-function Play-Music {
+function Start-Music {
     #[System.Console]::Beep(200,1000)
     #[System.Console]::Beep(600,1000)
      
@@ -35,7 +40,7 @@ function Play-Music {
     #$mediaPlayer.controls.stop()
 }
 #====================================================================================================================
-function Menu-Show {
+function Get-Menu {
     param (
         [parameter(Mandatory=$true)][string]$MenuName
     )
@@ -56,65 +61,97 @@ function Menu-Show {
     $menuoutput |get-easyview
 }
 #====================================================================================================================
-function Check-GameInstall {
+function Update-GameInstall {
     param (
         [parameter(Mandatory=$true)][string]$Game
     )
     foreach ($path in $global:gameinstall[$Game]) {
-        $directory = [System.IO.Path]::GetDirectoryName($path)
-        $filename = [System.IO.Path]::GetFileName($path)
-        # Check if the directory exists
-        if (Test-Path $directory) {
-            $global:gameworkdir[$Game] = @($directory)
-            # Combine directory and filename to check if the file exists
-            $fullPath = Join-Path -Path $directory -ChildPath $filename
-            if (Test-Path $fullPath) {
-                $global:gamefile[$Game] = @($fullPath)
+        $x = 0        
+        While ($x -lt $global:gameinstall[$Game].Count) {
+            if (Test-Path $global:gameinstall[$Game][$x]) {
+                $global:gamefile[$Game] = $global:gameinstall[$Game][$x]
                 return
             } else {
-                Write-Host "Game file does not exist: $fullPath"
+                Write-Host "Game file does not exist: $global:gaminstall[$Game][$x]"
+                Start-Sleep -Seconds 10
             }
         } else {
-            Write-Host "Directory does not exist: $directory"
+            #Write-Host "Directory does not exist: $directory"
+            #Start-Sleep -Seconds 10
         }
     }
 }
 
 #====================================================================================================================
-function Launch-Game {
+function Start-Game {
     param (
         [parameter(Mandatory=$true)][string]$Game,
         [string]$Args
     )
     # check game install if gamefiles exist
-    Check-GameInstall -Game $Game
-
-    $workdir = "C:\Program Files (x86)\EA GAMES\Battlefield 2"
-    $global:gameworkdir['bf2'] = "C:\Program Files (x86)\EA GAMES\Battlefield 2"
-    $gameexe = "C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe"
-    $global:gamefile = "C:\Program Files (x86)\EA GAMES\Battlefield 2\BF2.exe"
-
+    Update-GameInstall -Game $Game
+    $directory = [System.IO.Path]::GetDirectoryName($global:gamefile[$Game])
+    Set-Location -Path $directory
+    
     if ($Args) {
-        Start-Process -WorkingDirectory $workdir -FilePath $gameexe -ArgumentLIst $Args -Wait
+        & $global:gamefile[$Game] $global:gameconfig[$Game]
+        #Start-Process -FilePath $global:gamefile[$Game] -Wait -ArgumentList $Args
+        #Invoke-Expression "& '$global:gamefile[$Game]' $global:gameconfig[$Game]"
+
+        #$processStartInfo = New-Object System.Diagnostics.ProcessInfo
+        #$processStartInfo.Filename = $global:gamefile[$Game]
+        #$processStartInfo.Arguments = $global:gameconfig[$Game]
+        #$process = [System.Diagnostics.Process]::Start($processStartInfo)
     } else {
-        Start-Process -WorkingDirectory $workdir -FilePath $gameexe -Wait
+        & $global:gamefile[$Game]
+        #Start-Process -FilePath $global:gamefile[$Game] -Wait
+        #Invoke-Expression "& '$global:gamefile[$Game]'"
+
+        #$processStartInfo = New-Object System.Diagnostics.ProcessInfo
+        #$processStartInfo.Filename = $global:gamefile[$Game]
+        #$process = [System.Diagnostics.Process]::Start($processStartInfo)
     }
+    Start-Sleep 30
 }
 
 #====================================================================================================================
-function Config-Game {
+function Update-Game {
     param (
         [parameter(Mandatory=$true)][string]$Game
     )
+    Write-Host 'old gameconfig:' $global:gameconfig[$Game]
+
     if ($Game = 'bf2') {
-        $playername = Read-Host "Enter Player Name for BF2"
-        $playerpass = Read-Host "Enter Player Pass for BF2"
-        $global:gameconfig[$Game] = '+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567'
+        $global:playername = Read-Host "Enter Player Name for BF2"
+        $global:playerpass = Read-Host "Enter Player Pass for BF2"
+        $global:gameconfig[$Game] = "+playerName $global:playername +playerPassword $global:playerpass +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567"
         #$gameconfig[$Game] = @('+playerName ' +$playername+' +playerPassword '+$playerpass+' +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567')
     } 
     if ($Game = 'bf1942') {
-
+        $global:gameconfig[$Game] = ''
     }
+    if ($GAME = 'cnc') {
+        $global:gameconfig[$Game] = ''
+    }
+    if ($GAME = 'quake2') {
+        $global:gameconfig[$Game] = ''
+    }
+    if ($GAME = 'quake3') {
+        $global:gameconfig[$Game] = ''
+    }
+    if ($GAME = 'ut2004') {
+        $global:gameconfig[$Game] = ''
+    }
+    if ($GAME = 'warcraft3') {
+        $global:gameconfig[$Game] = ''
+    }
+    if ($GAME = 'warcraft3tft') {
+        $global:gameconfig[$Game] = ''
+    }
+
+
+    Write-Host 'new gameconfig:' $global:gameconfig[$Game]
+    Start-Sleep 10
 }
 #====================================================================================================================
 function installexe {
@@ -125,7 +162,7 @@ function installexe {
     )    
     Write-Host "Installing EXE"
 
-    cd $env:TEMP
+    Set-Location $env:TEMP
     $filename = $pname + '.msi'
 
     # Download and install Powershell (dependency)
@@ -144,7 +181,7 @@ function installmsi {
     )    
     Write-Host "Installing EXE"
 
-    cd $env:TEMP
+    Set-Location $env:TEMP
     $filename = $pname + '.msi'
 
     # Download and install Powershell (dependency)
@@ -172,7 +209,7 @@ function get-easyview{
 
     $text | ForEach-Object{
         Write-Host $_ @parameters
-        if($_ -notmatch "^\s+$"){Sleep -Milliseconds $Milliseconds}
+        if($_ -notmatch "^\s+$"){Start-Sleep -Milliseconds $Milliseconds}
     }
 }
 #====================================================================================================================
@@ -199,51 +236,51 @@ function GlobalThermonuclearWar {
 '
     
     Clear-Host
-    echo "LOGON:`t DADLAN`n`n" |get-easyview
+    Write-Output "LOGON:`t DADLAN`n`n" |get-easyview
     ASCIIlogo
-    sleep 5
+    Start-Sleep 5
     Clear-Host
-    echo "GREETINGS PROFESSOR FALKEN.`n" |get-easyview
-    sleep 6
-    echo "Hello.`n`n" |get-easyview
-    sleep 5
-    echo "HOW ARE YOU FEELING TODAY?`n" |get-easyview
-    sleep 8
-    echo "I'm fine. How are you?`n`n" |get-easyview
-    sleep 5
-    echo "EXCELLENT. IT'S BEEN A LONG TIME. CAN YOU EXPLAIN THE REMOVAL OF YOUR USER ACCOUNT ON 6/23/73?`n" |get-easyview
-    sleep 8
-    echo "People sometimes make mistakes.`n`n" |get-easyview
-    sleep 5
-    echo "YES THEY DO. SHALL WE PLAY A GAME?`n" |get-easyview
-    sleep 8
-    echo "Love to. How about Global Thermonuclear War?`n`n" |get-easyview
-    sleep 5
-    echo "WOULDN'T YOU PREFER A GOOD GAME OF CHESS?`n" |get-easyview
-    sleep 5
-    echo "Later. Let's play Global Thermonuclear War.`n`n" |get-easyview
-    sleep 10
-    echo "FINE.`n" |get-easyview
-    sleep 10
+    Write-Output "GREETINGS PROFESSOR FALKEN.`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "Hello.`n`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "HOW ARE YOU FEELING TODAY?`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "I'm fine. How are you?`n`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "EXCELLENT. IT'S BEEN A LONG TIME. CAN YOU EXPLAIN THE REMOVAL OF YOUR USER ACCOUNT ON 6/23/73?`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "People sometimes make mistakes.`n`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "YES THEY DO. SHALL WE PLAY A GAME?`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "Love to. How about Global Thermonuclear War?`n`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "WOULDN'T YOU PREFER A GOOD GAME OF CHESS?`n" |get-easyview
+    Start-Sleep 5
+    Write-Output "Later. Let's play Global Thermonuclear War.`n`n" |get-easyview
+    Start-Sleep 10
+    Write-Output "FINE.`n" |get-easyview
+    Start-Sleep 10
     Clear-Host
     $WarGames['asciimap'] |get-easyview -Milliseconds 150 -Pace Line
-    echo "WHICH SIDE DO YOU WANT?" |get-easyview
-    echo "`n  1.  UNITED STATES" |get-easyview
-    echo "`n  2.  SOVIET UNION" |get-easyview
-    echo "`nPLEASE CHOSE ONE:" |get-easyview
+    Write-Output "WHICH SIDE DO YOU WANT?" |get-easyview
+    Write-Output "`n  1.  UNITED STATES" |get-easyview
+    Write-Output "`n  2.  SOVIET UNION" |get-easyview
+    Write-Output "`nPLEASE CHOSE ONE:" |get-easyview
 
     do {
         $option = Read-Host
         switch ($option) {
-            "1" { sleep 5 }
-            "2" { sleep 5 }
+            "1" { Start-Sleep 5 }
+            "2" { Start-Sleep 5 }
         }
     } until (($option -eq 1) -or ($option -eq 2))
 
     Clear-Host
-    echo "AWAITING FIRST STRIKE COMMAND`n`n" |get-easyview
-    sleep 8
-    echo "" |get-easyview
+    Write-Output "AWAITING FIRST STRIKE COMMAND`n`n" |get-easyview
+    Start-Sleep 8
+    Write-Output "" |get-easyview
 }
 
 #====================================================================================================================
@@ -357,7 +394,10 @@ function Get-InstalledApp() {
 }
 
 #====================================================================================================================
-function Check-Wireguard {
+function Test-Wireguard {
+    param (
+        [string]$info
+    )
     $WireGuardApp = "C:\Program Files\WireGuard\wireguard.exe"
     $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
     $WireGuardFile = Test-Path $WireGuardApp
@@ -371,7 +411,7 @@ function Check-Wireguard {
     # Test Connection
     # if ($pingResult1 -or $pingResult2 -or $pingResult3) { 
     if ($pingResult1) { 
-        #Write-Host "[INFO] Wireguard Ok"
+        if ($info) { Write-Host "[INFO] Wireguard Ok" }
         return $true 
     }
 
@@ -379,19 +419,19 @@ function Check-Wireguard {
     if (-not $WireGuardProcess) {
         if ($WireGuardInstalled -and $WireGuardFile) { 
             # Check Management Services
-            $wg_mgmt_services = Get-Service |where { $_.Name -like 'WireGuardManager' }
+            $wg_mgmt_services = Get-Service |where-object { $_.Name -like 'WireGuardManager' }
             if ($wg_mgmt_services.status -eq 'Running') { 
-                #Write-Host 'Service OK'
+                if ($info) { Write-Host 'Service OK' }
                 return $true
             }
             
             # Check Tunnel Up Down            
-            $wg_services = Get-Service |where { $_.Name -like 'WireGuardTunnel*' }
+            $wg_services = Get-Service |where-object { $_.Name -like 'WireGuardTunnel*' }
             if ($wg_services.status -eq 'Running') { 
-                #Write-Host 'Service OK'
+                if ($info) { Write-Host 'Service OK' }
                 return $true 
             } else {
-                #Write-Host '[INFO] Starting Tunnel'
+                if ($info) { Write-Host '[INFO] Starting Tunnel' }
                 $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
                 Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
             }
@@ -399,8 +439,8 @@ function Check-Wireguard {
             
         } else {
             # Call Install Wireguard
-            Write-Host '[ERR] Please Reinstall Wireguard'
-            sleep 10
+            if ($info) { Write-Host '[ERR] Please Reinstall Wireguard' }
+            Start-Sleep -Seconds 10
             return $false
         }
     }
