@@ -383,9 +383,12 @@ function ASCIIlogo {
  |                                 ####     ####                               |
  |                               ######  .########                             |
  |                                   ##       ##                               |
- |_____________________________________________________________________________|'
+ |_____________________________________________________________________________|
+ 
+ '
 #Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green |get-easyview -Milliseconds 10 -Pace Character
-$ASCIILOGO |get-easyview -Milliseconds 10 -Pace Line
+#$ASCIILOGO |get-easyview -Milliseconds 2 -Pace Line
+Write-Host $ASCIILOGO
 }
 
 #====================================================================================================================
@@ -452,10 +455,10 @@ function Test-Wireguard {
     param (
         [bool]$info
     )
-    $AppWireguard = "C:\Program Files\WireGuard\wireguard.exe"
-    $AppWG = "C:\Program Files\WireGuard\wg.exe"
+    #$AppWireguard = "C:\Program Files\WireGuard\wireguard.exe"
+    #$AppWG = "C:\Program Files\WireGuard\wg.exe"
     $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
-    $WireGuardFile = Test-Path $AppWireguard
+    #$WireGuardFile = Test-Path $AppWireguard
     $WireGuardProcess = Get-Process -Name "wireguard" -ErrorAction SilentlyContinue
     $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
     $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
@@ -465,17 +468,17 @@ function Test-Wireguard {
     # Test Connection
     # if ($pingResult1 -or $pingResult2 -or $pingResult3) { 
     if ($pingResult1) { 
-        Conditional-WriteHost -Condition $info -Message "[INFO] Wireguard Ok"
+        Show-WriteHost2 -Condition $info -Message "[INFO] Wireguard Ok"
         return $true 
     }
             
     # Check Wireguard Process
-    if ((-not $WireGuardProcess) -or (-not $WireGuardInstalled)) {
+    if ((-not $WireGuardProcess) -or (-not $WireGuardInstalled) -or (-not $WireGuardInterface)) {
         # Call Install Wireguard
-        Conditional-WriteHost -Condition $info -Message '[ERR] Please Reinstall Wireguard'
+        Show-WriteHost2 -Condition $info -Message '[ERR] Please Reinstall Wireguard'
         Start-Sleep -Seconds 10
         return $false
-    }
+    } else { Start-Wireguard }
 }
 #====================================================================================================================
 function Update-WireguardConfig {
@@ -497,7 +500,7 @@ function Update-WireguardConfig {
     } }
 }
 #====================================================================================================================
-function Conditional-WriteHost {
+function Show-WriteHost2 {
     param(
         [bool]$Condition,
         [string]$Message
