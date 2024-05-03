@@ -34,7 +34,7 @@ function Get-Menu {
             $menuoutput += "`t[ $x ] $menuItem`n"
             $x ++
         }
-        if (Check-WireGuard) { $menuoutput += "`n`t[ N ] WireGuard Network" }
+        if (!(Test-WireGuard)) { $menuoutput += "`n`t[ N ] WireGuard Network <=== Action Required to connect to network" }
         if ($select_menu -ne "main") { $menuoutput += "`n`t[ M ] Main Menu" }
         $menuoutput += "`n`t[ X ] Exit`n`n"
     }
