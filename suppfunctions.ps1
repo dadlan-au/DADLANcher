@@ -5,8 +5,9 @@
 
 #====================================================================================================================
 # VARIOUS FUNCTIONS
-# function Start-Music
+
 # function Get-Menu -MenuName
+# function Update-Resolution
 # function Update-GameInstall -Game
 # function Start-Game -Game
 # function Update-Game -Game
@@ -21,25 +22,7 @@
 
 #Get-Verb
 #====================================================================================================================
-function Start-Music {
-    #[System.Console]::Beep(200,1000)
-    #[System.Console]::Beep(600,1000)
-     
-    #[System.Media.SystemSounds]::Exclamation.play()
-    #[System.Media.SystemSounds]::Hand.Play()
- 
-    # Create an instance of the Windows Media Player COM object
-    $mediaPlayer = New-Object -ComObject WMPlayer.OCX
-    # Load the MP3 file
-    $mediaPlayer.URL = $PSScriptRoot +"\8bit-music-for-game-68698.mp3"
-    # Play the MP3 file
-    $mediaPlayer.controls.playItem($mediaPlayer.controls.currentItem)
 
-    #sleep 60
-
-    #$mediaPlayer.controls.stop()
-}
-#====================================================================================================================
 function Get-Menu {
     param (
         [parameter(Mandatory=$true)][string]$MenuName
@@ -59,6 +42,16 @@ function Get-Menu {
     ASCIIlogo
     #Write-Host $menuoutput
     $menuoutput |get-easyview
+}
+#====================================================================================================================
+function Update-Resolution {
+    # Load the System.Windows.Forms assembly
+    Add-Type -AssemblyName System.Windows.Forms
+
+    # Get the primary screen resolution
+    $primaryScreen = [System.Windows.Forms.Screen]::PrimaryScreen
+    $global:width = $primaryScreen.Bounds.Width
+    $global:height = $primaryScreen.Bounds.Height
 }
 #====================================================================================================================
 function Update-GameInstall {
@@ -127,14 +120,84 @@ function Update-Game {
         $global:gameconfig[$Game] = "+playerName $global:playername +password $global:playerpass +restart 1 +joinServer 10.0.0.102:14567"
     }
     if ($Game = 'cnc') {
-        $global:gameconfig[$Game] = ''
+        $global:gameconfig[$Game] = ""
+    }
+    if ($Game = 'et') {
+        Update-Resolution
+        $configfile = etmain\etconfig.cfg
+        $content = Get-Content -Path $configfile
+        for ($i = 0, $i -lt $content.Count; $i++) {
+            if ($content[$i] -like "seta name*") { 
+                $newLine = 'seta name "{0}"' -f $global:playername
+                $content[$i] = $newLine
+            }
+            if ($content[$i] -like "seta r_customheight*") { 
+                $newLine = 'seta name "{0}"' -f $global:height
+                $content[$i] = $newLine
+            }
+            if ($content[$i] -like "seta r_customwidth*") { 
+                $newLine = 'seta name "{0}"' -f $global:width
+                $content[$i] = $newLine
+            }
+        }
+        $content |Set-Content $configfile
     }
     if ($Game = 'quake2') {
         #$global:gameconfig[$Game] = "+connect 10.0.0.102 +set cddir D:\install\data +set basedir C:\Quake2"
-        $global:gameconfig[$Game] = "+connect 10.0.0.102 +name $global:playername"
+        #$global:gameconfig[$Game] = "+connect 10.0.0.102 +name $global:playername"
+        Update-Resolution
+        $configfile = etmain\etconfig.cfg
+        $content = Get-Content -Path $configfile
+        for ($i = 0, $i -lt $content.Count; $i++) {
+            if ($content[$i] -like "seta name*") { 
+                $newLine = 'seta name "{0}"' -f $global:playername
+                $content[$i] = $newLine
+            }
+            if ($content[$i] -like "seta r_customheight*") { 
+                $newLine = 'seta name "{0}"' -f $global:height
+                $content[$i] = $newLine
+            }
+            if ($content[$i] -like "seta r_customwidth*") { 
+                $newLine = 'seta name "{0}"' -f $global:width
+                $content[$i] = $newLine
+            }
+        }
+        $content |Set-Content $configfile
     }
     if ($Game = 'quake3') {
-        $global:gameconfig[$Game] = "+connect 10.0.0.102 +name $global:playername"
+        # https://ioquake3.org/help/players-guide/
+        # maybe set these in the configfile q3config.cfg
+        # but look inside the working directory for this config file
+        Update-Resolution
+        $configfile = etmain\etconfig.cfg
+        $content = Get-Content -Path $configfile
+        for ($i = 0, $i -lt $content.Count; $i++) {
+            if ($content[$i] -like "seta name*") { 
+                $newLine = 'seta name "{0}"' -f $global:playername
+                $content[$i] = $newLine
+            }
+            if ($content[$i] -like "seta r_customheight*") { 
+                $newLine = 'seta name "{0}"' -f $global:height
+                $content[$i] = $newLine
+            }
+            if ($content[$i] -like "seta r_customwidth*") { 
+                $newLine = 'seta name "{0}"' -f $global:width
+                $content[$i] = $newLine
+            }
+        }
+        $content |Set-Content $configfile
+        #Get-Content q3config.cfg
+        # seta name "$global:playername"
+        # seta com_maxfps "60"
+        # seta max_rate "10000"
+        # seta server1 "10.0.0.102"
+        # seta r_mode "-1"
+        # seta r_customheight "1080"
+        # seta r_customwidth "1920"
+        # seta r_fullscreen "0"
+        # manual commands ?
+        # /cl_renderer opengl2
+        # /vid_restart
     }
     if ($Game = 'ut2004') {
         $global:gameconfig[$Game] = ''
