@@ -89,7 +89,7 @@ $menuaction['cnc'] = @('Start-Game -Game cnc','','','','Update-Game -Game cnc')
 $menu['et'] = @('Start Wolfenstein: EnemyTerritory','Configure Game')
 $menuaction['et'] = @('Start-Game -Game et','Update-Game -Game et')
 $menu['network'] = @('Test-Wireguard','Install-Wireguard')
-$menuaction['network'] = @('Test-Wireguard',"Installexe -url $global:download['wireguard']")
+$menuaction['network'] = @("Test-Wireguard -info $true","Installexe -url $global:download['wireguard']")
 $menu['quake2'] = @('Start Quake 2','Launch DADLAN Quake 2','Configure Game')
 $menuaction['quake2'] = @('Start-Game -Game q2','Start-Game -Game q2','Update-Game -Game quake2')
 $menu['quake3'] = @('Start Quake 3','Launch DADLAN Quake 3','Configure Game')
@@ -100,7 +100,7 @@ $menu['warcraft3'] = @('Start Warcraft 3','Start Warcraft 3 Frozen Throne','Laun
 $menuaction['warcraft3'] = @('Start-Game -Game warcraft3','Start-Game -Game warcraft3tft','Start-Game -Game Lancraft')
 #====================================================================================================================
 
-$player = Start-Music
+#$player = Start-Music
 
 #Menu-MainGame
 $select_menu = "main"

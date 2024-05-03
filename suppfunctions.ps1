@@ -67,7 +67,7 @@ function Update-GameInstall {
             } 
             $x ++
         }
-        Write-Host "404 GameFiles Not found" 
+        Write-Host "[ERR] 404 - GameFiles Not found" 
         Start-Sleep 10
     }
 }
@@ -78,7 +78,7 @@ function Start-Game {
         [parameter(Mandatory=$true)][string]$Game
     )
     # check game install if gamefiles exist
-    Update-GameInstall -Game $Game
+    if ($global:gamefile[$Game] -ne $null) { Update-GameInstall -Game $Game }
     $directory = [System.IO.Path]::GetDirectoryName($global:gamefile[$Game])
     Set-Location -Path $directory
     
@@ -110,8 +110,10 @@ function Update-Game {
     )
     Write-Host 'old gameconfig:' $global:gameconfig[$Game]
 
-        $global:playername = Read-Host "Enter Player Name"
-        $global:playerpass = Read-Host "Enter Player Pass for Battlefield"
+    $global:playername = Read-Host "Enter Player Name"
+    $global:playerpass = Read-Host "Enter Player Pass for Battlefield"
+
+    if ($global:gamefile[$Game] -ne $null) { Update-GameInstall -Game $Game } 
 
     if ($Game = 'bf2') {
         $global:gameconfig[$Game] = "+playerName $global:playername +playerPassword $global:playerpass +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567"
@@ -124,6 +126,7 @@ function Update-Game {
     }
     if ($Game = 'et') {
         Update-Resolution
+        $directory = [System.IO.Path]::GetDirectoryName($global:gamefile[$Game])
         $configfile = etmain\etconfig.cfg
         $content = Get-Content -Path $configfile
         for ($i = 0, $i -lt $content.Count; $i++) {
@@ -345,51 +348,42 @@ function GlobalThermonuclearWar {
 
 #====================================================================================================================
 function ASCIIlogo {
-    $ASCIILOGO = ' _________________________________________________________________________________________
- |                                   ##############                                       |
- |                                 ##   ########                                          |
- |                                 ##   ########                                          |
- |                                         ##                                             |
- |                                        ###                                             |
- |                                   ########                                             |
- |                                 ##   #####                                             |
- |                                 ##   #####                                             |
- |                                      #####                                             |
- |                                      #####   ########                                  |
- |                                      ###  #############                                |
- |                                      ##   ##############                               |
- |                                   ###   #####     ###                                  |
- |                                    #    #          #                                   |
- |                                                                                        |
- |        ##       #######           #####      #####            ##      #######          |
- |        ###     ########           #####      #####            ##      ########         |
- |     ######################     ###   ################      #####################       |
- |       #######  ###     ###             ######  ######        ####### ####    ####      |
- |   ##   #####   ###     ######           #####   #####   ###   #####   ##      #####    |
- |        #####   ###     ######        #####      #####         #####   ##      #####    |
- |        #####   ###     ######        #####      #####         #####   ##      #####    |
- |     ########   #####   ######     ###################      ########   #####   #####    |
- |        #####   ###     ######       #######    ######        ######   ###     #####    |
- |        #####   ###     ######        #####      #####         #####   ##      #####    |
- |        #####   ###     #####         #####      #####         #####   ##      #####    |
- |        ###########   #####        ########      ########      ##########   #####       |
- |      #####  ######  ###              ###          ###        ###   ###### ####         |
- |     ######   ##########              ##           ###      #####   ###########         |
- |                                                                                        |
- |                                      ##      #####                                     |
- |                                   ###################                                  |
- |                                   ###################                                  |
- |                                ###   #####      #####                                  |
- |                                      #####      #####                                  |
- |                                      #####      #####                                  |
- |                                   ########      #####                                  |
- |                                    #######      #####                                  |
- |                                      #####      #####                                  |
- |                                      #####      #####                                  |
- |                                   ########   ###########                               |
- |                                    #######    #########                                |
- |                                         ##        ###                                  |
- |________________________________________________________________________________________|'
+    $ASCIILOGO = '
+  _____________________________________________________________________________
+ |                                                                             |    
+ |                               ###########                                   |
+ |                            ###  #######                                     |
+ |                                   ##                                        |
+ |                               ######                                        |
+ |                            ###  ####                                        |
+ |                                 ####                                        |
+ |                                 ####  .######                               |
+ |                                 ##  ###########                             |
+ |                               ##  #####    ##                               |
+ |                               ##  #####    ##                               |
+ |                                                                             |
+ |         ##    #######         ####    #####         ##     ######           |
+ |      ##################    ###  #############     ##################        |
+ |    ##. .####  ###    ####         ####   ####   ##  ####   ##    #####      |
+ |        .####  ###    ####       ####     ####       ####   ##    #####      |
+ |      #######  #####  ####     ###############     ######   ####  #####      |
+ |        .####  ###    ####  ###  ####     ####       ####   ##    #####      |
+ |        .####  ###    ####       ####     ####       ####   ##    #####      |
+ |        .#########  ####       ######     ######     #########  #####        |
+ |      #####  #########           ##         ##     ####  #########           |
+ |      #####  #########           ##         ##     ####  #########           |
+ |                                                                             |
+ |                                 ##    .####                                 |
+ |                               ###############                               |
+ |                               ###############                               |
+ |                            ###  ####     ####                               |
+ |                                 ####     ####                               |
+ |                               ######     ####                               |
+ |                                 ####     ####                               |
+ |                                 ####     ####                               |
+ |                               ######  .########                             |
+ |                                   ##       ##                               |
+ |_____________________________________________________________________________|'
 #Write-Host $ASCIILOGO -BackgroundColor Black -ForegroundColor Green |get-easyview -Milliseconds 10 -Pace Character
 $ASCIILOGO |get-easyview -Milliseconds 10 -Pace Line
 }
@@ -456,14 +450,14 @@ function Get-InstalledApp() {
 #====================================================================================================================
 function Test-Wireguard {
     param (
-        [string]$info
+        [bool]$info
     )
-    $WireGuardApp = "C:\Program Files\WireGuard\wireguard.exe"
+    $AppWireguard = "C:\Program Files\WireGuard\wireguard.exe"
+    $AppWG = "C:\Program Files\WireGuard\wg.exe"
     $WireGuardInstalled = Get-InstalledApp -Application 'WireGuard' -Version '0.5.3'
-    $WireGuardFile = Test-Path $WireGuardApp
+    $WireGuardFile = Test-Path $AppWireguard
     $WireGuardProcess = Get-Process -Name "wireguard" -ErrorAction SilentlyContinue
     $WireGuardInterface = Get-NetAdapter -IncludeHidden | Where-Object { $_.InterfaceDescription -like "*WireGuard Tunnel*" }
-    $WireGuardConfigDir = "C:\DADLAN\wireguard_conf\"
     $pingResult1 = Test-Connection -ComputerName 10.0.0.102 -Count 1 -Quiet
     #$pingResult2 = Test-Connection -ComputerName 10.0.0.129 -Count 1 -Quiet
     #$pingResult3 = Test-Connection -ComputerName 10.20.30.100 -Count 1 -Quiet
@@ -471,37 +465,65 @@ function Test-Wireguard {
     # Test Connection
     # if ($pingResult1 -or $pingResult2 -or $pingResult3) { 
     if ($pingResult1) { 
-        if ($info) { Write-Host "[INFO] Wireguard Ok" }
+        Conditional-WriteHost -Condition $info -Message "[INFO] Wireguard Ok"
         return $true 
     }
+            
+    # Check Wireguard Process
+    if ((-not $WireGuardProcess) -or (-not $WireGuardInstalled)) {
+        # Call Install Wireguard
+        Conditional-WriteHost -Condition $info -Message '[ERR] Please Reinstall Wireguard'
+        Start-Sleep -Seconds 10
+        return $false
+    }
+}
+#====================================================================================================================
+function Update-WireguardConfig {
+    if (!$global:WireGuardConfig -and (Test-Path $global:WireGuardConfig)) {
+    #(new-object -Com 'Shell.Application').BrowseForFile
+    Add-Type -AssemblyName System.Windows.Forms
+    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $openFileDialog.Title = "Select Wireguard Configuration"
+    $openFileDialog.Filter = "All Files (*.conf)|*.conf"
+    $openFileDialog.Multiselect = $false
+    
+    $result = $openFileDialog.ShowDialog()
 
-    # Check Wireguard
-    if (-not $WireGuardProcess) {
-        if ($WireGuardInstalled -and $WireGuardFile) { 
-            # Check Management Services
-            $wg_mgmt_services = Get-Service |where-object { $_.Name -like 'WireGuardManager' }
-            if ($wg_mgmt_services.status -eq 'Running') { 
-                if ($info) { Write-Host 'Service OK' }
-                return $true
-            }
-            
-            # Check Tunnel Up Down            
-            $wg_services = Get-Service |where-object { $_.Name -like 'WireGuardTunnel*' }
-            if ($wg_services.status -eq 'Running') { 
-                if ($info) { Write-Host 'Service OK' }
-                return $true 
-            } else {
-                if ($info) { Write-Host '[INFO] Starting Tunnel' }
-                $WireGuardConfig = $WireGuardConfigDir + (Get-ChildItem "C:\DADLAN\wireguard_conf").Name
-                Start-Process -FilePath 'C:\Program Files\WireGuard\wireguard.exe' -ArgumentList "/installtunnelservice $WireGuardConfig"
-            }
-            
-            
-        } else {
-            # Call Install Wireguard
-            if ($info) { Write-Host '[ERR] Please Reinstall Wireguard' }
-            Start-Sleep -Seconds 10
-            return $false
-        }
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        $global:WireGuardConfig = $openFileDialog.FileName
+        Write-Host "Selected file: $global:WireGuardConfig"
+    } else {
+        Write-Host "No file selected."
+    } }
+}
+#====================================================================================================================
+function Conditional-WriteHost {
+    param(
+        [bool]$Condition,
+        [string]$Message
+    )
+
+    if ($Condition -and $Message) {
+        Write-Host $Message
+    }
+}
+#====================================================================================================================
+function Start-Wireguard {
+    $tunnelfile = Get-ChildItem "C:\Program Files\WireGuard\Data\Configurations" -Filter "*.dpapi" |Select-Object FullName
+    $Process = @{
+        "Wait" = $true
+        "NoNewWindow" = $true
+        "FilePath" = $AppWG
+        "ArgumentList" = "/installtunnelservice", $tunnelfile.FullName
+    }
+    Start-Process @Process
+
+    # Check Tunnel Up Down            
+    $wg_services = Get-Service |where-object { $_.Name -like 'WireGuardTunnel*' }
+    if ($wg_services.status -eq 'Running') { 
+        Write-Host '[INFO] Wireguard Service Running' 
+    } else {
+        Write-Host '[INFO] Wireguard Tunnel Starting'
+        Start-Service -Name $wg_service.Name
     }
 }
