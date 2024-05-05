@@ -45,6 +45,9 @@ function Get-Menu {
 }
 #====================================================================================================================
 function Update-Resolution {
+    param (
+        [bool]$info
+    )
     # Load the System.Windows.Forms assembly
     Add-Type -AssemblyName System.Windows.Forms
 
@@ -52,25 +55,25 @@ function Update-Resolution {
     $primaryScreen = [System.Windows.Forms.Screen]::PrimaryScreen
     $global:width = $primaryScreen.Bounds.Width
     $global:height = $primaryScreen.Bounds.Height
+
+    Show-WriteHost2 -Condition $info -Message "Screen Resolution $global:width x $global:height"
 }
 #====================================================================================================================
 function Update-GameInstall {
     param (
         [parameter(Mandatory=$true)][string]$Game
     )
-    foreach ($path in $global:gameinstall[$Game]) {
-        $x = 0        
-        While ($x -lt $global:gameinstall[$Game].Count) {
+    foreach ($path in $global:gameinstall[$Game]) { 
+        for ($x = 0, $x -lt $global:gameinstall[$Game].Count; $x++) {
             if (Test-Path $global:gameinstall[$Game][$x]) {
                 $global:gamefile[$Game] = $global:gameinstall[$Game][$x]
                 return
             } 
-            $x ++
         }
-        Write-Host "[ERR] 404 - GameFiles Not found" 
-        Start-Sleep 10
     }
-}
+    Write-Host "[ERR] 404 - GameFiles $Game Not found"
+    Start-Sleep 10
+    }
 
 #====================================================================================================================
 function Start-Game {
@@ -78,11 +81,11 @@ function Start-Game {
         [parameter(Mandatory=$true)][string]$Game
     )
     # check game install if gamefiles exist
-    if ($global:gamefile[$Game] -ne $null) { Update-GameInstall -Game $Game }
+    if ($null -ne $global:gamefile[$Game]) { Update-GameInstall -Game $Game }
     $directory = [System.IO.Path]::GetDirectoryName($global:gamefile[$Game])
     Set-Location -Path $directory
     
-    if ($global:gameconfig[$Game] -ne $null) {
+    if ($null -ne $global:gameconfig[$Game]) {
         & $global:gamefile[$Game] $global:gameconfig[$Game]
         #Start-Process -FilePath $global:gamefile[$Game] -Wait -ArgumentList $Args
         #Invoke-Expression "& '$global:gamefile[$Game]' $global:gameconfig[$Game]"
@@ -113,7 +116,7 @@ function Update-Game {
     $global:playername = Read-Host "Enter Player Name"
     $global:playerpass = Read-Host "Enter Player Pass for Battlefield"
 
-    if ($global:gamefile[$Game] -ne $null) { Update-GameInstall -Game $Game } 
+    if ($null -eq $global:gamefile[$Game]) { Update-GameInstall -Game $Game } 
 
     if ($Game = 'bf2') {
         $global:gameconfig[$Game] = "+playerName $global:playername +playerPassword $global:playerpass +fullscreen 1 +restart 1 +joinServer 10.0.0.102 +port 16567"
@@ -127,7 +130,7 @@ function Update-Game {
     if ($Game = 'et') {
         Update-Resolution
         $directory = [System.IO.Path]::GetDirectoryName($global:gamefile[$Game])
-        $configfile = etmain\etconfig.cfg
+        $configfile = "$directory\etmain\etconfig.cfg"
         $content = Get-Content -Path $configfile
         for ($i = 0, $i -lt $content.Count; $i++) {
             if ($content[$i] -like "seta name*") { 
@@ -422,7 +425,8 @@ if ($IsWindows -or $IsLinux -or $IsMacOs) {
 function Get-InstalledApp() {
     param (
         [parameter(Mandatory=$true)][string]$Application,
-        [version]$Version
+        [version]$Version,
+        [bool]$info
     )
     
     $installedVersion = $null
@@ -440,10 +444,10 @@ function Get-InstalledApp() {
 
         # Compare the installed version
         if ($installedVersion -eq $Version) {
-            #Write-Output "$installedAppName $InstalledVersion is installed"
+            Show-WriteHost2 -Condition $info -Message "$installedAppName $InstalledVersion is installed"
             return $true
         } else {
-            #Write-output "$installedAppName $Version is NOT installed"
+            Show-WriteHost2 -Condition $info -Message "$installedAppName $Version is NOT installed"
             return $false
         }
     }
