@@ -64,16 +64,18 @@ function Update-GameInstall {
         [parameter(Mandatory=$true)][string]$Game
     )
     foreach ($path in $global:gameinstall[$Game]) { 
-        for ($x = 0, $x -lt $global:gameinstall[$Game].Count; $x++) {
+        $x = 0
+        while ($x -lt $global:gameinstall[$Game].Count) {
             if (Test-Path $global:gameinstall[$Game][$x]) {
                 $global:gamefile[$Game] = $global:gameinstall[$Game][$x]
                 return
-            } 
+            }
+            $x++ 
         }
     }
     Write-Host "[ERR] 404 - GameFiles $Game Not found"
     Start-Sleep 10
-    }
+}
 
 #====================================================================================================================
 function Start-Game {
@@ -154,7 +156,8 @@ function Update-Game {
         Update-Resolution
         $configfile = etmain\etconfig.cfg
         $content = Get-Content -Path $configfile
-        for ($i = 0, $i -lt $content.Count; $i++) {
+        $i = 0
+        while ($i -lt $content.Count) {
             if ($content[$i] -like "seta name*") { 
                 $newLine = 'seta name "{0}"' -f $global:playername
                 $content[$i] = $newLine
@@ -167,6 +170,7 @@ function Update-Game {
                 $newLine = 'seta name "{0}"' -f $global:width
                 $content[$i] = $newLine
             }
+            $i++
         }
         $content |Set-Content $configfile
     }
@@ -177,7 +181,8 @@ function Update-Game {
         Update-Resolution
         $configfile = etmain\etconfig.cfg
         $content = Get-Content -Path $configfile
-        for ($i = 0, $i -lt $content.Count; $i++) {
+        $i = 0
+        while ($i -lt $content.Count) {
             if ($content[$i] -like "seta name*") { 
                 $newLine = 'seta name "{0}"' -f $global:playername
                 $content[$i] = $newLine
@@ -190,6 +195,7 @@ function Update-Game {
                 $newLine = 'seta name "{0}"' -f $global:width
                 $content[$i] = $newLine
             }
+            $i++
         }
         $content |Set-Content $configfile
         #Get-Content q3config.cfg
